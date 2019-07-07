@@ -33,20 +33,19 @@ export class AuthAdminGuardService implements CanActivate, OnInit {
           } else {
             this.authService.onTokenChange()
               .subscribe((token: NbAuthJWTToken) => {
-                console.log(token)
-                if (token['payload']['roles'].length == 1 || token['payload']['roles'][0] == 'ROLE_USER') {
-                  alert('You are not a admin')
+                if (token['payload']['roles'].length === 1 || token['payload']['roles'][0] == 'ROLE_USER') {
+                  alert('You are not a admin');
                   localStorage.clear();
-                  this.router.navigate(['/auth/login'])
+                  this.router.navigate(['/auth/login']);
                   this.canActivate;
                   return false;
                 } else {
                   return true;
                 }
-              })
+              });
           }
-        })
-      )
+        }),
+      );
   }
 }
 
@@ -57,18 +56,18 @@ export class isAdminGuardService implements CanActivate {
   constructor(public accessChecker: NbAccessChecker, private authService: NbAuthService, private router: Router) {
   }
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this.accessChecker.isGranted('access_denied', 'get-out')
+    return this.accessChecker.isGranted('access_denied', 'get-out');
 
   }
 }
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class isOrgAdminGuardService implements CanActivate {
   constructor(public accessChecker: NbAccessChecker, private authService: NbAuthService, private router: Router) {
   }
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this.accessChecker.isGranted('access_denied', 'get-out')
+    return this.accessChecker.isGranted('access_denied', 'get-out');
 
   }
 
