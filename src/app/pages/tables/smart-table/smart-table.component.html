@@ -1,10 +1,123 @@
-<nb-card>
+<nb-card *ngIf="(!goForm) ? true : false">
   <nb-card-header>
-    Smart Table
+    <h1>List-Members</h1>
   </nb-card-header>
 
   <nb-card-body>
-    <ng2-smart-table [settings]="settings" [source]="source" (deleteConfirm)="onDeleteConfirm($event)">
+    <ng2-smart-table (create)="onCreate($event)" [settings]="settings" [source]="members" (edit)="onEdit($event)"
+      (delete)="onDeleteConfirm($event)">
     </ng2-smart-table>
   </nb-card-body>
+</nb-card>
+
+
+<!-- Add FORM -->
+<nb-card *ngIf="(goForm == true) ? true : false" class="container-fluid">
+  <nb-card-header>
+    <h1 *ngIf="isAdd">Add-Member</h1>
+    <h2 *ngIf="isEdit">Edit-Member</h2>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="">
+      <!-- Name -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Name:</label>
+
+        <input required minlength="4" #name="ngModel" [(ngModel)]="formMember['name']" placeholder="Name"
+          class="form-control" type="text">
+        <!-- Validation -->
+        <div *ngIf="name.invalid && (name.dirty || name.touched) && isAdd" class="alert alert-danger">
+
+          <div *ngIf="name.errors.required">
+            Name is required.
+          </div>
+          <div *ngIf="name.errors.minlength">
+            Name must be at least 4 characters long.
+          </div>
+          <div *ngIf="name.errors.forbiddenName">
+            Name cannot be Bob.
+          </div>
+
+        </div>
+      </div>
+      <!-- Age -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Age:</label>
+        <input #age="ngModel" required placeholder="Age" [(ngModel)]="formMember['age']" placeholder="Age"
+          class="form-control" type="text">
+        <!-- Validation -->
+        <div *ngIf="age.invalid && (age.dirty || age.touched) && isAdd" class="alert alert-danger">
+          <div *ngIf="age.errors.required">
+            Age is required.
+          </div>
+        </div>
+      </div>
+      <!-- Job -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Job:</label>
+        <input #job="ngModel" required [(ngModel)]="formMember['job']" placeholder="Job" class="form-control"
+          type="text">
+        <!-- Validation -->
+        <div *ngIf="job.invalid && (job.dirty || job.touched) && isAdd" class="alert alert-danger">
+          <div *ngIf="job.errors.required">
+            Job is required.
+          </div>
+        </div>
+      </div>
+      <!-- D.O.B -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">D.O.B:</label>
+        <input #date="ngModel" required [(ngModel)]="formMember['dob']" class="form-control" nbInput
+          placeholder="Choose a Date/Time" [nbDatepicker]="formpicker">
+        <nb-datepicker [format]="'YYYY-MM-DD'" #formpicker></nb-datepicker>
+        <!-- Validation -->
+        <div *ngIf="date.invalid && (age.dirty || date.touched) && isAdd" class="alert alert-danger">
+          <div *ngIf="date.errors.required">
+            D.O.B is required.
+          </div>
+        </div>
+      </div>
+      <!-- NRIC/ID NUMBER -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">NRIC/ID Number:</label>
+        <input #nric="ngModel" required [(ngModel)]="formMember['nric']" placeholder="NRIC/ID Number"
+          class="form-control" type="text">
+        <!-- Validation -->
+        <div *ngIf="nric.invalid && (age.dirty || nric.touched) && isAdd" class="alert alert-danger">
+          <div *ngIf="nric.errors.required">
+            NRIC/ID Number is required.
+          </div>
+        </div>
+      </div>
+      <!-- Phone Number -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Phone Number:</label>
+        <input #phoneNumber="ngModel" required [(ngModel)]="formMember['phoneNumber']" placeholder="Phone Number"
+          class="form-control" type="string">
+        <!-- Validation -->
+        <div *ngIf="phoneNumber.invalid && (phoneNumber.dirty || phoneNumber.touched) && isAdd" class="alert alert-danger">
+          <div *ngIf="phoneNumber.errors.required">
+            Phone number is required.
+          </div>
+        </div>
+      </div>
+      <!-- Email -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Email:</label>
+        <input #email="ngModel" required [(ngModel)]="formMember['email']" placeholder="Email" class="form-control"
+          type="text">
+        <!-- Validation -->
+        <div *ngIf="email.invalid && (email.dirty || email.touched) && isAdd" class="alert alert-danger">
+          <div *ngIf="email.errors.required">
+            Email is required.
+          </div>
+        </div>
+      </div>
+    </div>
+  </nb-card-body>
+  <nb-card-footer class="d-flex justify-content-between">
+    <a (click)="clear();" class="btn btn-dark text-light cursor-pointer">Back</a>
+    <a *ngIf="isAdd" (click)="createSubmit(formMember);" class="btn btn-dark text-light cursor-pointer" [class.disabled]="name.invalid && job.invalid && date.invalid && nric.invalid && isAdd">Save</a>
+    <a *ngIf="isEdit" (click)="editSubmit(formMember);" class="btn btn-dark ml-2 text-light cursor-pointer">Save</a>
+  </nb-card-footer>
 </nb-card>

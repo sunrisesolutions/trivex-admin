@@ -8,7 +8,7 @@ const routes: Routes = [{
   path: '',
   component: TablesComponent,
   children: [{
-    path: 'smart-table',
+    path: 'members',
     component: SmartTableComponent,
   }],
 }];
@@ -16,10 +16,12 @@ const routes: Routes = [{
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
+
 })
 export class TablesRoutingModule { }
 
 export const routedComponents = [
   TablesComponent,
   SmartTableComponent,
+
 ];

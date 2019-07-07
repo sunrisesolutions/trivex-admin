@@ -1,0 +1,18 @@
+:host /deep/ td.ng-star-inserted{
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+
+}
+
+:host /deep/ div.ng-star-inserted {
+  img {
+    object-fit: cover;
+    width: 150px;
+    height: auto;
+    border-radius: 15px;
+  }
+}
+
+.cursor-pointer{
+  cursor: pointer !important;
+}

@@ -2,17 +2,27 @@ import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 
 import { PagesComponent } from './pages.component';
+import { ManageEventsComponent } from './manage-events/manage-events.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ECommerceComponent } from './e-commerce/e-commerce.component';
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
+import { HomeComponent } from './home/home.component';
+import { DeliveriesAllComponent } from './deliveries-all/deliveries-all.component';
+import { OrgizationsComponent } from './orgizations/orgizations.component';
+import { isAdminGuardService, isOrgAdminGuardService } from '../auth/auth-admin-guard.service';
 
 const routes: Routes = [{
   path: '',
   component: PagesComponent,
   children: [{
-    path: 'dashboard',
-    component: ECommerceComponent,
-  }, {
+    path: 'home',
+    component: HomeComponent,
+  },
+  {
+    path: 'deliveries-all',
+    component: DeliveriesAllComponent
+  },
+  {
     path: 'iot-dashboard',
     component: DashboardComponent,
   }, {
@@ -39,15 +49,24 @@ const routes: Routes = [{
   }, {
     path: 'forms',
     loadChildren: './forms/forms.module#FormsModule',
-  }, {
-    path: 'tables',
+  },
+  {
+    path: 'organisations',
+    component: OrgizationsComponent
+  },
+  {
+    path: 'manage-events',
+    component: ManageEventsComponent
+  },
+  {
+    path: 'manage-members',
     loadChildren: './tables/tables.module#TablesModule',
   }, {
     path: 'miscellaneous',
     loadChildren: './miscellaneous/miscellaneous.module#MiscellaneousModule',
   }, {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'home',
     pathMatch: 'full',
   }, {
     path: '**',

@@ -1,0 +1,57 @@
+.unread{
+  background-color: white;
+
+}
+.read{
+  background-color: #EDF2FA;
+}
+.avatar{
+    width: 80px;
+    height: 80px;
+}
+.cursor-pointer{
+  cursor:pointer !important;
+}
+@media only screen and(min-width: 768px){
+  .w-custom{
+    width: 80% !important;
+  }
+}
+
+@media only screen and(max-width: 768px){
+  .w-custom{
+    width: 100% !important;
+  }
+  .avatar{
+    width: 120px;
+    height: 120px;
+}
+}
+
+@media only screen and (min-width: 1064px){
+  .w-custom{
+   width: 70% !important;
+  }
+}
+
+#infinite-scroller {
+ height: 500px;
+//  width: 700px;
+ border: 1px solid #f5ad7c;
+ overflow: scroll;
+ padding: 0;
+ list-style: none;
+}
+
+// li {
+//  padding: 10px 5px;
+//  line-height: 1.5;
+// }
+
+// :nth-child(odd) {
+//  background: #ffe8d8;
+// }
+
+// :nth-child(even) {
+//  background: #f5ad7c;
+// }

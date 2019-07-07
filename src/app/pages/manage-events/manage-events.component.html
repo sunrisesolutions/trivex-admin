@@ -1,0 +1,10 @@
+<nb-card>
+  <nb-card-header>
+    List-Events
+  </nb-card-header>
+
+  <nb-card-body>
+    <ng2-smart-table [settings]="settings" [source]="listEvents" (editConfirm)="onEdit($event)" (createConfirm)="onCreate($event)" (deleteConfirm)="onDelete($event)">
+    </ng2-smart-table>
+  </nb-card-body>
+</nb-card>

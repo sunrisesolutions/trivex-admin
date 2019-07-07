@@ -15,4 +15,15 @@
       }
     }
   }
+  /deep/ nb-menu {
+    & > .menu-items {
+      & > .menu-item:first-child {
+        .menu-title {
+          &::after {
+            display: none !important;
+          }
+        }
+      }
+    }
+  }
 }

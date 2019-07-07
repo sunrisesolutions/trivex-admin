@@ -1,0 +1,78 @@
+<div class="container w-custom">
+  <div appInfiniteScroller scrollPercent="80" immediateCallback="true" [scrollCallback]="scrollCallback">
+    <div (click)="open(content,delivery)" *ngFor="let delivery of deliveries;let i = index;let c = count"
+      class="card mb-4 cursor-pointer">
+      <!-- Modal -->
+      <ng-template #content let-modal>
+        <div *ngIf="delivery" class="">
+          <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">{{delivery.createdAt | date:'short'}}</h4>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss(modalSHOW=false);">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body mt-3 mt-md-2">
+            <div class="card card-profile" style="box-shadow: 0px 2px 5px 0px #888888">
+              <div class="d-flex justify-content-center">
+                <div class="card-profile-image" style="top:-20pt">
+                  <img (click)="modal.dismiss('go to info sender')"
+                    routerLink="/club-members/{{delivery.idSender}}/info"
+                    style="width:100px;height:100px;object-fit: cover" alt="Image placeholder" [src]="delivery.picture"
+                    class="avatar rounded-circle">
+                </div>
+              </div>
+              <div class="card-body mt-4 text-center">
+                <div class="container">
+                  <div class="h1">
+                    {{delivery.name}}
+                  </div>
+                  <hr class="my-2">
+                  <div class="font-weight-bold">
+                    {{delivery.message.subject}}
+                  </div>
+                  <div class="font-weight-light">
+                    {{delivery.message.body}}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="modal-footer justify-content-start border">
+            <div style="color: white !important" class="container">
+              <div class="row">
+                <div class="col-12 col-md-6">
+                  <a (click)="delivery=deliveries[i=i-1];open('',delivery)" *ngIf="i !== 0"
+                    class="btn cursor-pointer btn-info w-100">Prev</a>
+                </div>
+                <div class="col-12 col-md-6 text-right mt-2 mt-md-0">
+                  <a (click)="delivery=deliveries[i=i+1];open('',delivery)" *ngIf="c-1 > i "
+                    class="btn cursor-pointer btn-danger w-100">Next</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <!-- /.Modal -->
+      <div class="card-bordy px-0 py-2 p-md-3 {{(delivery.readAt) ? 'read' : 'unread'}}">
+        <div class="container text-center text-md-left">
+          <div class="row">
+            <div class="col-12 col-md-2">
+              <img style="object-fit: cover" class="avatar rounded-circle border" [src]="delivery.picture">
+            </div>
+            <div class="col-12 col-md-7">
+
+              <h3 class="w-auto font-weight-bold">{{delivery.name}}</h3>
+              <p style="font-size: 18px;">{{delivery.message.subject}}</p>
+            </div>
+            <hr class="d-block mx-0 d-md-none w-100" />
+            <div class="col-12 col-md-3 d-flex justify-content-end align-items-end">
+              {{delivery.createdAt | date:'short'}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

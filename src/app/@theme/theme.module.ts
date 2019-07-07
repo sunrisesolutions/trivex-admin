@@ -60,6 +60,7 @@ import {
   NumberWithCommasPipe,
   EvaIconsPipe,
 } from './pipes';
+import{NbMomentDateModule} from '@nebular/moment';
 import {
   OneColumnLayoutComponent,
   SampleLayoutComponent,
@@ -141,7 +142,7 @@ const PIPES = [
 const NB_THEME_PROVIDERS = [
   ...NbThemeModule.forRoot(
     {
-      name: 'cosmic',
+      name: 'corporate',
     },
     [ DEFAULT_THEME, COSMIC_THEME, CORPORATE_THEME ],
   ).providers,
@@ -151,13 +152,14 @@ const NB_THEME_PROVIDERS = [
   ...NbDialogModule.forRoot().providers,
   ...NbWindowModule.forRoot().providers,
   ...NbToastrModule.forRoot().providers,
+  ...NbToastrModule.forRoot().providers,
   ...NbChatModule.forRoot({
     messageGoogleMapKey: 'AIzaSyA_wNuCzia92MAmdLRzmqitRGvCF7wCZPY',
   }).providers,
 ];
 
 @NgModule({
-  imports: [...BASE_MODULES, ...NB_MODULES],
+  imports: [...BASE_MODULES, ...NB_MODULES,NbMomentDateModule],
   exports: [...BASE_MODULES, ...NB_MODULES, ...COMPONENTS, ...PIPES],
   declarations: [...COMPONENTS, ...PIPES],
   entryComponents: [...ENTRY_COMPONENTS],

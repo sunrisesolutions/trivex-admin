@@ -1,9 +1,12 @@
-import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
+import { map } from 'rxjs/operators';
+import {
+  ModuleWithProviders, NgModule, Optional, SkipSelf,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NbAuthModule, NbDummyAuthStrategy } from '@nebular/auth';
-import { NbSecurityModule, NbRoleProvider } from '@nebular/security';
+import { NbAuthModule, NbDummyAuthStrategy, NbPasswordAuthStrategy, NbAuthJWTToken, NbPasswordAuthStrategyOptions, NbAuthService } from '@nebular/auth';
+import { NbSecurityModule, NbRoleProvider, NbAccessChecker } from '@nebular/security';
 import { of as observableOf } from 'rxjs';
-
+import { getDeepFromObject } from '@nebular/auth/helpers';
 import { throwIfAlreadyLoaded } from './module-import-guard';
 import {
   AnalyticsService,
@@ -31,6 +34,7 @@ import { StatsProgressBarData } from './data/stats-progress-bar';
 import { VisitorsAnalyticsData } from './data/visitors-analytics';
 import { SecurityCamerasData } from './data/security-cameras';
 
+import { RoleProvider } from '../providers/role/role.provider';
 import { UserService } from './mock/users.service';
 import { ElectricityService } from './mock/electricity.service';
 import { SmartTableService } from './mock/smart-table.service';
@@ -51,6 +55,8 @@ import { StatsProgressBarService } from './mock/stats-progress-bar.service';
 import { VisitorsAnalyticsService } from './mock/visitors-analytics.service';
 import { SecurityCamerasService } from './mock/security-cameras.service';
 import { MockDataModule } from './mock/mock-data.module';
+import { HttpResponse } from '@angular/common/http';
+import { AccessCheckerService } from '../services/access-checker.service';
 
 const socialLinks = [
   {
@@ -69,7 +75,6 @@ const socialLinks = [
     icon: 'socicon-twitter',
   },
 ];
-
 const DATA_SERVICES = [
   { provide: UserData, useClass: UserService },
   { provide: ElectricityData, useClass: ElectricityService },
@@ -92,12 +97,14 @@ const DATA_SERVICES = [
   { provide: SecurityCamerasData, useClass: SecurityCamerasService },
 ];
 
-export class NbSimpleRoleProvider extends NbRoleProvider {
-  getRole() {
-    // here you could provide any role based on any auth flow
-    return observableOf('guest');
-  }
+export function Getter(module: string, res: HttpResponse<Object>, options: NbPasswordAuthStrategyOptions) {
+  localStorage.setItem('refresh_token', getDeepFromObject(res.body, 'refresh_token'))
+  return getDeepFromObject(
+    res.body,
+    options.token.key
+  )
 }
+
 
 export const NB_CORE_PROVIDERS = [
   ...MockDataModule.forRoot().providers,
@@ -105,37 +112,65 @@ export const NB_CORE_PROVIDERS = [
   ...NbAuthModule.forRoot({
 
     strategies: [
-      NbDummyAuthStrategy.setup({
-        name: 'email',
-        delay: 3000,
+      NbPasswordAuthStrategy.setup({
+        name: 'username',
+        baseEndpoint: 'https://user.api.trivesg.com/',
+        login: {
+          endpoint: 'authentication_token',
+          method: 'post',
+          redirect: {
+            success: '/pages/home',
+          },
+          defaultErrors: ['Login/User combination is not correct, please try again.'],
+          defaultMessages: ['You have been successfully logged in.'],
+        },
+
+        token: {
+          class: NbAuthJWTToken,
+          key: 'token',
+          getter: Getter
+
+        },
+        refreshToken: {
+
+          endpoint: 'token/refresh',
+          method: 'post',
+          requireValidToken: false,
+          redirect: {
+            success: null,
+            failure: null,
+          },
+          defaultErrors: ['Something went wrong, please try again.'],
+          defaultMessages: ['Your token has been successfully refreshed.'],
+        },
       }),
     ],
     forms: {
-      login: {
-        socialLinks: socialLinks,
-      },
-      register: {
-        socialLinks: socialLinks,
-      },
     },
   }).providers,
 
   NbSecurityModule.forRoot({
     accessControl: {
-      guest: {
-        view: '*',
-      },
-      user: {
-        parent: 'guest',
+      ROLE_ORG_ADMIN: {
+        view: ['manage-members', 'manage-events'],
         create: '*',
         edit: '*',
         remove: '*',
+      },
+      ROLE_ADMIN: {
+        view: ['organisations'],
+        create: '*',
+        edit: '*',
+        remove: '*'
+      },
+      ROLE_USER: {
+        getOut: ['access-denied'],
       },
     },
   }).providers,
 
   {
-    provide: NbRoleProvider, useClass: NbSimpleRoleProvider,
+    provide: NbRoleProvider, useClass: RoleProvider,
   },
   AnalyticsService,
   LayoutService,

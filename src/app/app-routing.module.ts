@@ -8,10 +8,12 @@ import {
   NbRequestPasswordComponent,
   NbResetPasswordComponent,
 } from '@nebular/auth';
+import { AuthAdminGuardService} from './auth/auth-admin-guard.service';
 
 const routes: Routes = [
-  { path: 'pages', loadChildren: 'app/pages/pages.module#PagesModule' },
-  {
+  { path: 'pages',canActivate:[AuthAdminGuardService], loadChildren: 'app/pages/pages.module#PagesModule' },
+  { path: 'auth', loadChildren: 'app/auth/auth-admin/auth-admin.module#AuthAdminModule' },
+  /* {
     path: 'auth',
     component: NbAuthComponent,
     children: [
@@ -40,7 +42,7 @@ const routes: Routes = [
         component: NbResetPasswordComponent,
       },
     ],
-  },
+  }, */
   { path: '', redirectTo: 'pages', pathMatch: 'full' },
   { path: '**', redirectTo: 'pages' },
 ];

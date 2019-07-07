@@ -210,3 +210,15 @@
     }
   }
 }
+
+:host /deep/ .nb-badge.right{
+  right: 15px !important;
+}
+
+.cursor-pointer{
+  cursor: pointer !important;
+}
+
+:host /deep/ .user-picture.image{
+  background-position: center;
+}
