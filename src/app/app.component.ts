@@ -8,6 +8,7 @@ import { AnalyticsService } from './@core/utils/analytics.service';
 import { NbAuthService, decodeJwtPayload } from '@nebular/auth';
 import { Router } from '@angular/router';
 import { NbAccessChecker } from '@nebular/security';
+import { environment } from '../environments/environment.prod';
 
 @Component({
   selector: 'ngx-app',
@@ -20,6 +21,12 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (environment.production) {
+      if (!location.protocol.startsWith("https")) {
+        window.location.href = location.href.replace('http', 'https');
+      }
+    }
+
     if (localStorage.getItem('refresh_token')) {
       this.authService.refreshToken('username', { "refresh_token": localStorage.getItem('refresh_token') })
         .subscribe(res => {
