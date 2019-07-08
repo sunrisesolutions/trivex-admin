@@ -80,6 +80,16 @@ export class ApiService {
     };
     return this.httpClient.put(`${createMember}/people/${id}`, body, httpOptions);
   }
+  DeletePerson(id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.delete(`${createMember}/people/${id}`, httpOptions);
+  }
+  /* Individual_Members */
   createMember(body) {
     const httpOptions = {
       headers: new HttpHeaders({
@@ -89,7 +99,15 @@ export class ApiService {
     };
     return this.httpClient.post(`${orgAPI}/individual_members`, body, httpOptions);
   }
-
+  EditIndividualMember(body, id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.put(`${orgAPI}/individual_members/${id}`, body, httpOptions);
+  }
   deleteUser(id) {
     const httpOptions = {
       headers: new HttpHeaders({

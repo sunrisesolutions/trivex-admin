@@ -35,8 +35,8 @@
 
   <nb-card *ngIf="(goForm == true) ? true : false" class="container-fluid">
     <nb-card-header>
-      <h1 *ngIf="isAdd">Add-Orgnisation</h1>
-      <h2 *ngIf="isEdit">Edit-Orgnisation</h2>
+      <h1 *ngIf="isAdd">Orgnisation Info</h1>
+      <h2 *ngIf="isEdit">Orgnisation Info</h2>
     </nb-card-header>
     <nb-card-body>
       <div class="">
@@ -79,8 +79,8 @@
           <input id="logo" type="file" class="" accept="image/*">
         </div>
         <!-- Admin User -->
-       <!--  <div class="form-group mt-1">
-          <label class="font-weight-bold" for="">Admin User:</label>
+        <div class="form-group mt-1">
+          <label class="font-weight-bold" for="">Admin User Info:</label>
           <input #adminUser="ngModel" required placeholder="User name" [(ngModel)]="FormOrg['adminUser']"
             class="form-control" type="text">
 
@@ -89,10 +89,10 @@
               User name is required.
             </div>
           </div>
-        </div> -->
+        </div>
         <!-- Admin Password -->
-        <!-- <div class="form-group">
-          <label class="font-weight-bold" for="">Admin Password:</label>
+        <div class="form-group">
+          <label class="font-weight-bold" for="">Admin Password Info:</label>
           <input #adminPassword="ngModel" type="password" class="form-control" required placeholder="Password"
             [(ngModel)]="FormOrg['adminPassword']">
           <div *ngIf="adminPassword.invalid && (adminPassword.dirty || adminPassword.touched)"
@@ -101,9 +101,9 @@
               Password is required.
             </div>
           </div>
-        </div> -->
+        </div>
         <!-- DOB -->
-       <!--  <div class="form-group">
+        <div class="form-group">
           <label class="font-weight-bold" for="">D.O.B:</label>
           <input #dob="ngModel" required [(ngModel)]="FormOrg['dob']" class="form-control" nbInput
             placeholder="Choose a Date/Time" [nbDatepicker]="formpicker">
@@ -114,9 +114,9 @@
               D.O.B is required.
             </div>
           </div>
-        </div> -->
+        </div>
         <!-- email -->
-      <!--   <div class="form-group">
+        <div class="form-group">
           <label class="font-weight-bold" for="">Email:</label>
           <input #email="ngModel" required placeholder="Password" [(ngModel)]="FormOrg['email']" class="form-control"
             type="email">
@@ -126,9 +126,9 @@
               Email is required.
             </div>
           </div>
-        </div> -->
+        </div>
         <!-- nric -->
-        <!-- <div class="form-group">
+        <div class="form-group">
           <label class="font-weight-bold" for="">NRIC/Id Number:</label>
           <input #nric="ngModel" required placeholder="NRIC/Id Number" [(ngModel)]="FormOrg['nric']"
             class="form-control" type="text">
@@ -138,9 +138,9 @@
               Password is required.
             </div>
           </div>
-        </div> -->
+        </div>
         <!-- uuid -->
-      <!--   <div class="form-group">
+        <!-- <div class="form-group">
           <label class="font-weight-bold" for="">UUID:</label>
           <input #uuid="ngModel" required placeholder="Uuid" [(ngModel)]="FormOrg['uuid']" class="form-control"
             type="text">
@@ -152,7 +152,7 @@
           </div>
         </div> -->
         <!-- Phone Number -->
-      <!--   <div class="form-group">
+        <div class="form-group">
           <label class="font-weight-bold" for="">Phone Number:</label>
           <input #phoneNumber="ngModel" required placeholder="Phone Number" [(ngModel)]="FormOrg['phoneNumber']"
             class="form-control" type="text">
@@ -162,7 +162,7 @@
               phoneNumber is required.
             </div>
           </div>
-        </div> -->
+        </div>
       </div>
     </nb-card-body>
     <nb-card-footer class="d-flex justify-content-between">

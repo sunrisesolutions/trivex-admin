@@ -80,7 +80,7 @@ export class OrgizationsComponent implements OnInit {
 
     },
   };
-  constructor(private apiService: ApiService, private http: HttpClient, private authService: NbAuthService,public accessChecker: NbAccessChecker) {
+  constructor(private apiService: ApiService, private http: HttpClient, private authService: NbAuthService, public accessChecker: NbAccessChecker) {
     this.authService.onTokenChange().subscribe((token) => {
       if (token.isValid()) {
         this.orgId = token['payload'].org;
@@ -117,7 +117,7 @@ export class OrgizationsComponent implements OnInit {
     this.FormOrg['address'] = event.data['address'];
     this.FormOrg['adminUser'] = event.data['adminUser'];
     this.FormOrg['adminPassword'] = event.data['adminPassword'];
-
+    this.FormOrg['idPerson'] = event.data['@id']
     console.log(event);
 
 
@@ -140,90 +140,110 @@ export class OrgizationsComponent implements OnInit {
     /* Post to person */
     this.apiService.createInfoMember(bodyPerson)
       .subscribe(res => {
-        let bodyIndividual = {
-          "personUuid": res['uuid'],
-          "organisationUuid": this.orgId
-        }
-        console.log('createInfo completed')
-        // Post to Individual_Members
-        this.apiService.createMember(bodyIndividual)
-          .subscribe(res => {
-            data['logoName'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
-            data['logoFile'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
-            let bodyOrganisation = {
-              "logoName": (data['logoName'].name) ? data['logoName'].name : null,
-              "address": (data['address']) ? data['address'] : null,
-              "name": (data['name']) ? data['name'] : null,
-            }
-            this.apiService.createOrganisations(bodyOrganisation)
-              .subscribe(res => {
-                /* Up Logo */
-                console.log('create organisation completed')
-                let attributes = res['logoWriteForm']['attributes'];
-                let inputs = res['logoWriteForm']['inputs'];
-                let formLogoWrite = new FormData;
-                formLogoWrite.append('Policy', inputs['Policy']);
-                formLogoWrite.append('X-Amz-Algorithm', inputs['X-Amz-Algorithm']);
-                formLogoWrite.append('X-Amz-Credential', inputs['X-Amz-Credential']);
-                formLogoWrite.append('X-Amz-Date', inputs['X-Amz-Date']);
-                formLogoWrite.append('X-Amz-Signature', inputs['X-Amz-Signature']);
-                formLogoWrite.append('acl', inputs['acl']);
-                formLogoWrite.append('key', res['logoWriteForm']['filePath']);
-                formLogoWrite.append('file', data['logoFile'])
-                if (data['logoFile']) {
-                  this.apiService.uploadImage(attributes['action'], formLogoWrite)
-                    .subscribe(res => {
-                      console.log('Upload image completed');
-                    })
-                }
-                /* /.Up Logo */
-                /* Post to user */
-                let bodyCreateUser = {
-                  "email":(data['email']) ? data['email'] : null,
-                  "plainPassword":(data['adminPassword']) ? data['adminPassword'] : null,
-                  "idNumber": (data['nric']) ? data['nric'] : null,
-                  "phone": (data['phoneNumber']) ? data['phoneNumber'] : null,
-                  "birthDate":  (mainDate) ? mainDate : null
-                }
-                this.apiService.createUser(bodyCreateUser)
-                  .subscribe(res=>{
-                    this.getOrganisations();
-                    this.FormOrg = [];
-                    console.log('User Completed',res)
-                  })
-              })
-          })
+        this.createOrgIndividual(data, res)
       })
     console.log(data)
 
   }
-  /* Edit */
-  editOrgSubmit(event) {
-    let logoTag = (<HTMLInputElement>document.getElementById("logo")).files;
-    let logo;
-    if (logoTag.length !== 0) {
-      logo = logoTag[0].name;
+  createOrgIndividual(dataInput, getUuidPerson) {
+    let bodyIndividual = {
+      "personUuid": getUuidPerson['uuid'],
+      "organisationUuid": this.orgId
     }
+    // Post to Individual_Members
+    this.apiService.createMember(bodyIndividual)
+      .subscribe(res => {
+        this.createOrg(dataInput)
+      })
 
-    console.log(event);
-    /*  let body = {
-       "logoWriteUrl": (logo) ? logo : null,
-       "address": event.newData['address'],
-       "name": event.newData['name'],
-     }
-     let id = event.data['@id']
-     id = id.match(/\d+/g, '').map(Number);
-     this.apiService.editOrganisations(body, id)
-       .subscribe(res => {
-         console.log(res);
-         this.getOrganisations();
-       }, err => {
-         if (err.status == 404) {
-           alert('Organisation invalid.!!!')
-         } else if (err.status == 500) {
-           alert('Server error.!!!')
-         }
-       }) */
+  }
+  createOrg(dataInput) {
+    dataInput['logoName'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
+    dataInput['logoFile'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
+    let bodyOrganisation = {
+      "logoName": (dataInput['logoName'].name) ? dataInput['logoName'].name : null,
+      "address": (dataInput['address']) ? dataInput['address'] : null,
+      "name": (dataInput['name']) ? dataInput['name'] : null,
+    }
+    this.apiService.createOrganisations(bodyOrganisation)
+      .subscribe(res => {
+        /* Up Logo */
+        console.log('create organisation completed')
+        let attributes = res['logoWriteForm']['attributes'];
+        let inputs = res['logoWriteForm']['inputs'];
+        let formLogoWrite = new FormData;
+        formLogoWrite.append('Policy', inputs['Policy']);
+        formLogoWrite.append('X-Amz-Algorithm', inputs['X-Amz-Algorithm']);
+        formLogoWrite.append('X-Amz-Credential', inputs['X-Amz-Credential']);
+        formLogoWrite.append('X-Amz-Date', inputs['X-Amz-Date']);
+        formLogoWrite.append('X-Amz-Signature', inputs['X-Amz-Signature']);
+        formLogoWrite.append('acl', inputs['acl']);
+        formLogoWrite.append('key', res['logoWriteForm']['filePath']);
+        formLogoWrite.append('file', dataInput['logoFile'])
+        if (dataInput['logoFile']) {
+          this.apiService.uploadImage(attributes['action'], formLogoWrite)
+            .subscribe(res => {
+              this.createOrgUser(dataInput)
+              console.log('Upload image completed');
+            })
+        }
+      })
+  }
+  createOrgUser(dataInput) {
+    let mainDate;
+    if (dataInput['dob']) {
+      mainDate = `${dataInput['dob']['_i'][0]}-0${dataInput['dob']['_i'][1]}-${dataInput['dob']['_i'][2]}`.toLocaleString();
+    }
+    let bodyCreateUser = {
+      "email": (dataInput['email']) ? dataInput['email'] : null,
+      "plainPassword": (dataInput['adminPassword']) ? dataInput['adminPassword'] : null,
+      "idNumber": (dataInput['nric']) ? dataInput['nric'] : null,
+      "phone": (dataInput['phoneNumber']) ? dataInput['phoneNumber'] : null,
+      "birthDate": (mainDate) ? mainDate : null
+    }
+    this.apiService.createUser(bodyCreateUser)
+      .subscribe(res => {
+        this.getOrganisations();
+        this.FormOrg = [];
+        console.log('User Completed', res)
+      })
+  }
+  /* Edit */
+  editOrgSubmit(dataInput) {
+    let mainDate;
+    if (dataInput['dob']) {
+      mainDate = `${dataInput['dob']['_i'][0]}-0${dataInput['dob']['_i'][1]}-${dataInput['dob']['_i'][2]}`.toLocaleString();
+    }
+    let bodyPerson = {
+      "givenName": (dataInput['name']) ? dataInput['name'] : null,
+      "birthDate": (mainDate) ? mainDate : null,
+      "email": (dataInput['email']) ? dataInput['email'] : null,
+      "phoneNumber": (dataInput['phoneNumber']) ? dataInput['phoneNumber'] : null,
+      "nationalities": [{
+        "nricNumber": dataInput['nric'],
+      }]
+    }
+    /* Post to person */
+    let idPerson = dataInput['idPerson'];
+    idPerson = idPerson.match(/\d+/g,'').map(Number);
+    this.apiService.EditInfoMember(bodyPerson,idPerson)
+      .subscribe(res => {
+        this.editIndividual(dataInput)
+      })
+  }
+  editIndividual(dataInput){
+    let bodyIndividual = {
+      "personUuid": dataInput['uuid'],
+      "organisationUuid": this.orgId
+    }
+    // Post to Individual_Members
+    this.apiService.createMember(bodyIndividual)
+      .subscribe(res => {
+
+        this.createOrg(dataInput)
+
+
+      })
   }
   /* Delete */
   deleteOrgSubmit(event) {
