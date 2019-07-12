@@ -350,7 +350,6 @@ export class OrganisationMembersComponent implements OnInit {
     } else if (event.action === 'Delete') {
       this.deleteMememberSubmit(event);
     } else if (event.action === 'Admin') {
-      this.isAdmin = !this.isAdmin;
       this.setAdmin(event)
     }
   }
