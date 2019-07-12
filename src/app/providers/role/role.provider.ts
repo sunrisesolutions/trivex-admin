@@ -17,12 +17,12 @@ export class RoleProvider implements NbRoleProvider {
     return this.authService.onTokenChange()
       .pipe(
         map((token: NbAuthJWTToken) => {
-          if(token.isValid()){
-            if(token['payload']['roles'].length == 1 && token['payload']['roles'][0]=='ROLE_USER'){
+          if (token.isValid()) {
+            if (token['payload']['roles'].length == 1 && token['payload']['roles'][0] == 'ROLE_USER') {
               alert('is User')
               return token['payload']['roles'][0]
-            }else{
-              return  token['payload']['roles']
+            } else {
+              return token['payload']['roles']
             }
           }
         })

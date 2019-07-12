@@ -18,6 +18,7 @@ import { ThemeModule } from './@theme/theme.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { InfiniteScrollerDirective } from './directives/infinite-scroller.directive';
 import { NbDatepickerModule } from '@nebular/theme';
+import { RouterModule, ActivatedRouteSnapshot } from '@angular/router';
 
 @NgModule({
   declarations: [AppComponent],
@@ -27,11 +28,12 @@ import { NbDatepickerModule } from '@nebular/theme';
     HttpClientModule,
     AppRoutingModule,
     AuthAdminModule,
+
     FormsModule,
     NgbModule.forRoot(),
     ThemeModule.forRoot(),
     CoreModule.forRoot(),
-    NbDatepickerModule.forRoot()
+    NbDatepickerModule.forRoot(),
   ],
   bootstrap: [AppComponent],
   providers: [

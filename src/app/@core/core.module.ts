@@ -1,9 +1,10 @@
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs/Observable';
+import { map, catchError } from 'rxjs/operators';
 import {
   ModuleWithProviders, NgModule, Optional, SkipSelf,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NbAuthModule, NbDummyAuthStrategy, NbPasswordAuthStrategy, NbAuthJWTToken, NbPasswordAuthStrategyOptions, NbAuthService } from '@nebular/auth';
+import { NbAuthModule, NbDummyAuthStrategy, NbPasswordAuthStrategy, NbAuthJWTToken, NbPasswordAuthStrategyOptions, NbAuthService, NbAuthRefreshableToken, NbAuthStrategy, NbAuthStrategyOptions, NbAuthResult, NbPasswordStrategyModule } from '@nebular/auth';
 import { NbSecurityModule, NbRoleProvider, NbAccessChecker } from '@nebular/security';
 import { of as observableOf } from 'rxjs';
 import { getDeepFromObject } from '@nebular/auth/helpers';
@@ -55,7 +56,7 @@ import { StatsProgressBarService } from './mock/stats-progress-bar.service';
 import { VisitorsAnalyticsService } from './mock/visitors-analytics.service';
 import { SecurityCamerasService } from './mock/security-cameras.service';
 import { MockDataModule } from './mock/mock-data.module';
-import { HttpResponse } from '@angular/common/http';
+import { HttpResponse, HttpHeaders } from '@angular/common/http';
 import { AccessCheckerService } from '../services/access-checker.service';
 
 const socialLinks = [
@@ -97,13 +98,17 @@ const DATA_SERVICES = [
   { provide: SecurityCamerasData, useClass: SecurityCamerasService },
 ];
 
+
+
 export function Getter(module: string, res: HttpResponse<Object>, options: NbPasswordAuthStrategyOptions) {
+
   localStorage.setItem('refresh_token', getDeepFromObject(res.body, 'refresh_token'))
   return getDeepFromObject(
     res.body,
     options.token.key
   )
 }
+
 
 
 export const NB_CORE_PROVIDERS = [
@@ -132,13 +137,13 @@ export const NB_CORE_PROVIDERS = [
 
         },
         refreshToken: {
-
+          alwaysFail: false,
           endpoint: 'token/refresh',
           method: 'post',
-          requireValidToken: false,
+          requireValidToken: true,
           redirect: {
             success: null,
-            failure: null,
+            failure: 'null',
           },
           defaultErrors: ['Something went wrong, please try again.'],
           defaultMessages: ['Your token has been successfully refreshed.'],

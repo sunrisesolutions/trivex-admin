@@ -99,16 +99,7 @@ export class ApiService {
     };
     return this.httpClient.post(`${orgAPI}/individual_members`, body, httpOptions);
   }
-  EditIndividualMember(body, id) {
-    const httpOptions = {
-      headers: new HttpHeaders({
-        "accept": "application/ld+json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
-      })
-    };
-    return this.httpClient.put(`${orgAPI}/individual_members/${id}`, body, httpOptions);
-  }
-  deleteUser(id) {
+  deleteIndividual(id) {
     const httpOptions = {
       headers: new HttpHeaders({
         "accept": "application/ld+json",
@@ -117,7 +108,15 @@ export class ApiService {
     };
     return this.httpClient.delete(`${orgAPI}/individual_members${id}`, httpOptions);
   }
-
+  setAdmin(body, id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.put(`${orgAPI}${id}`, body, httpOptions);
+  }
   /* Organizations */
   getOrganisations(id) {
     const httpOptions = {
@@ -155,15 +154,6 @@ export class ApiService {
     };
     return this.httpClient.delete(`${orgAPI}/organisations/${id}`, httpOptions)
   }
-  createUser(body) {
-    const httpOptions = {
-      headers: new HttpHeaders({
-        "accept": "application/ld+json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
-      })
-    };
-    return this.httpClient.post(`${userApi}/users`, body, httpOptions)
-  }
   uploadImage(getLogoWriteUrl, upToLogoWriteUrl): Observable<any> {
     /* ======= HEADRER ======= */
     const httpOptions = {
@@ -176,4 +166,51 @@ export class ApiService {
     /* ======= /.HEADER ====== */
     return this.httpClient.post(getLogoWriteUrl, upToLogoWriteUrl, httpOptions)
   }
+  /* USER */
+  getUser(paramsFilter) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.get(`${userApi}/users${paramsFilter}`, httpOptions)
+  }
+  getInfoUser(id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.get(`${orgAPI}/individual_members/${id}`, httpOptions)
+  }
+  createUser(body) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.post(`${userApi}/users`, body, httpOptions)
+  }
+  editUser(body, id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.put(`${userApi}/users/${id}`, body, httpOptions)
+  }
+  deleteUser(id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.delete(`${userApi}/users/${id}`, httpOptions)
+  }
+
 }

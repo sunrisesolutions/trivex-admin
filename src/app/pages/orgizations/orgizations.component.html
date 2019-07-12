@@ -1,4 +1,5 @@
-<div *ngIf="!(accessChecker.isGranted('view', 'organisations') | async)" class="accessChecker container flex-centers p-0">
+<div *ngIf="!(accessChecker.isGranted('view', 'organisations') | async)"
+  class="accessChecker container flex-centers p-0">
   <div class="row">
     <div class="col-md-12 text-center">
       <nb-card>
@@ -25,8 +26,8 @@
     </nb-card-header>
 
     <nb-card-body>
-      <ng2-smart-table (edit)="edit($event)" (delete)="deleteOrgSubmit($event)" (create)="create($event)"
-        [source]="orgInfo" [settings]="settings">
+      <ng2-smart-table (custom)="customButton($event)" (create)="create($event)" [source]="orgInfo"
+        [settings]="settings">
       </ng2-smart-table>
     </nb-card-body>
   </nb-card>
@@ -35,14 +36,14 @@
 
   <nb-card *ngIf="(goForm == true) ? true : false" class="container-fluid">
     <nb-card-header>
-      <h1 *ngIf="isAdd">Orgnisation Info</h1>
-      <h2 *ngIf="isEdit">Orgnisation Info</h2>
+      <h1 *ngIf="isAdd">Organisation Info</h1>
+      <h2 *ngIf="isEdit">Organisation Info</h2>
     </nb-card-header>
-    <nb-card-body>
+    <nb-card-body (keyup.enter)="(isEdit) ? editOrgSubmit(FormOrg) : (isAdd) ? createOrg(FormOrg): false">
       <div class="">
         <!-- Name -->
         <div class="form-group">
-          <label class="font-weight-bold" for="">Name:</label>
+          <label class="font-weight-bold" for="">Organisation Name:</label>
 
           <input required minlength="4" #name="ngModel" [(ngModel)]="FormOrg['name']" placeholder="Name"
             class="form-control" type="text">
@@ -78,69 +79,118 @@
           <label class="font-weight-bold mr-2" for="">Logo:</label>
           <input id="logo" type="file" class="" accept="image/*">
         </div>
-        <!-- Admin User -->
-        <div class="form-group mt-1">
-          <label class="font-weight-bold" for="">Admin User Info:</label>
-          <input #adminUser="ngModel" required placeholder="User name" [(ngModel)]="FormOrg['adminUser']"
+        <!-- Code -->
+        <div class="form-group">
+          <label class="font-weight-bold" for="">Code:</label>
+          <input #code="ngModel" required placeholder="Code" [(ngModel)]="FormOrg['code']" class="form-control"
+            type="text">
+          <!-- Validation -->
+          <div *ngIf="code.invalid && (code.dirty || code.touched) && isAdd" class="alert alert-danger">
+            <div *ngIf="code.errors.required">
+              Code is required.
+            </div>
+          </div>
+        </div>
+        <!-- Subdomain -->
+        <div class="form-group">
+          <label class="font-weight-bold" for="">Subdomain:</label>
+          <input #subdomain="ngModel" required placeholder="Subdomain" [(ngModel)]="FormOrg['subdomain']"
             class="form-control" type="text">
+          <!-- Validation -->
+          <div *ngIf="subdomain.invalid && (subdomain.dirty || subdomain.touched) && isAdd" class="alert alert-danger">
+            <div *ngIf="subdomain.errors.required">
+              Subdomain is required.
+            </div>
+          </div>
+        </div>
+        <!-- TITle -->
+        <!-- Admin Form -->
+        <div *ngIf="addAdmin" class="admin-group">
+          <h1>Add Admin</h1>
+          <!-- Name Admin -->
+          <div class="form-group">
+            <label class="font-weight-bold" for="">Admin Name:</label>
 
-          <div *ngIf="adminUser.invalid && (adminUser.dirty || adminUser.touched)" class="alert alert-danger">
-            <div *ngIf="adminUser.errors.required">
-              User name is required.
-            </div>
-          </div>
-        </div>
-        <!-- Admin Password -->
-        <div class="form-group">
-          <label class="font-weight-bold" for="">Admin Password Info:</label>
-          <input #adminPassword="ngModel" type="password" class="form-control" required placeholder="Password"
-            [(ngModel)]="FormOrg['adminPassword']">
-          <div *ngIf="adminPassword.invalid && (adminPassword.dirty || adminPassword.touched)"
-            class="alert alert-danger">
-            <div *ngIf="adminPassword.errors.required">
-              Password is required.
-            </div>
-          </div>
-        </div>
-        <!-- DOB -->
-        <div class="form-group">
-          <label class="font-weight-bold" for="">D.O.B:</label>
-          <input #dob="ngModel" required [(ngModel)]="FormOrg['dob']" class="form-control" nbInput
-            placeholder="Choose a Date/Time" [nbDatepicker]="formpicker">
-          <nb-datepicker [format]="'YYYY-MM-DD'" #formpicker></nb-datepicker>
+            <input required minlength="4" #adminName="ngModel" [(ngModel)]="FormOrg['nameAdmin']"
+              placeholder="Admin Name" class="form-control" type="text">
 
-          <div *ngIf="dob.invalid && (dob.dirty || dob.touched) && isAdd" class="alert alert-danger">
-            <div *ngIf="dob.errors.required">
-              D.O.B is required.
+            <div *ngIf="adminName.invalid && (adminName.dirty || adminName.touched)" class="alert alert-danger">
+              <div *ngIf="adminName.errors.required">
+                Name is required.
+              </div>
             </div>
+            <!-- Validation -->
           </div>
-        </div>
-        <!-- email -->
-        <div class="form-group">
-          <label class="font-weight-bold" for="">Email:</label>
-          <input #email="ngModel" required placeholder="Password" [(ngModel)]="FormOrg['email']" class="form-control"
-            type="email">
+          <!-- Admin User -->
+          <div class="form-group mt-1">
+            <label class="font-weight-bold" for="">Admin UserName:</label>
+            <input #adminUser="ngModel" required placeholder="User name" (focus)="avaiabledUser=false" (focusout)="filter(FormOrg)"
+              [(ngModel)]="FormOrg['adminUser']" class="form-control" type="text">
 
-          <div *ngIf="email.invalid && (email.dirty || email.touched)" class="alert alert-danger">
-            <div *ngIf="email.errors.required">
-              Email is required.
+            <div *ngIf="avaiabledUser" class="alert alert-danger">
+              <p>The username {{FormOrg['adminUser']}} already exists. Please use a different username.</p>
             </div>
-          </div>
-        </div>
-        <!-- nric -->
-        <div class="form-group">
-          <label class="font-weight-bold" for="">NRIC/Id Number:</label>
-          <input #nric="ngModel" required placeholder="NRIC/Id Number" [(ngModel)]="FormOrg['nric']"
-            class="form-control" type="text">
 
-          <div *ngIf="nric.invalid && (nric.dirty || nric.touched)" class="alert alert-danger">
-            <div *ngIf="nric.errors.required">
-              Password is required.
+            <div *ngIf="adminUser.invalid && (adminUser.dirty || adminUser.touched)" class="alert alert-danger">
+              <div *ngIf="adminUser.errors.required">
+                User name is required.
+              </div>
             </div>
           </div>
-        </div>
-        <!-- uuid -->
-        <!-- <div class="form-group">
+          <!-- Admin Password -->
+          <div class="form-group">
+            <label class="font-weight-bold" for="">Admin Password:</label>
+            <input #adminPassword="ngModel" type="password" class="form-control" required placeholder="Password"
+              [(ngModel)]="FormOrg['adminPassword']">
+            <div *ngIf="adminPassword.invalid && (adminPassword.dirty || adminPassword.touched)"
+              class="alert alert-danger">
+              <div *ngIf="adminPassword.errors.required">
+                Password is required.
+              </div>
+            </div>
+          </div>
+          <!-- DOB -->
+          <div class="form-group">
+            <label class="font-weight-bold" for="">D.O.B:</label>
+            <input #dob="ngModel" required [(ngModel)]="FormOrg['dob']" class="form-control" nbInput
+              placeholder="Choose a Date/Time" [nbDatepicker]="formpicker">
+            <nb-datepicker [format]="'YYYY-MM-DD'" #formpicker></nb-datepicker>
+
+            <div *ngIf="dob.invalid && (dob.dirty || dob.touched) && isAdd" class="alert alert-danger">
+              <div *ngIf="dob.errors.required">
+                D.O.B is required.
+              </div>
+            </div>
+          </div>
+          <!-- email -->
+          <div class="form-group">
+            <label class="font-weight-bold" for="">Admin Email:</label>
+            <input #email="ngModel" required placeholder="Admin Email" (focus)="avaiabledEmail=false" (focusout)="filter(FormOrg)"
+              [(ngModel)]="FormOrg['email']" class="form-control" type="text">
+
+            <div *ngIf="avaiabledEmail" class="alert alert-danger">
+              <p>The email {{FormOrg['email']}} already exists. Please use a different email.</p>
+            </div>
+            <div *ngIf="email.invalid && (email.dirty || email.touched)" class="alert alert-danger">
+              <div *ngIf="email.errors.required">
+                Email is required.
+              </div>
+            </div>
+          </div>
+          <!-- nric -->
+          <div class="form-group">
+            <label class="font-weight-bold" for="">NRIC/Id Number:</label>
+            <input #nric="ngModel" required placeholder="NRIC/Id Number" [(ngModel)]="FormOrg['nric']"
+              class="form-control" type="text">
+
+            <div *ngIf="nric.invalid && (nric.dirty || nric.touched)" class="alert alert-danger">
+              <div *ngIf="nric.errors.required">
+                Password is required.
+              </div>
+            </div>
+          </div>
+          <!-- uuid -->
+          <!-- <div class="form-group">
           <label class="font-weight-bold" for="">UUID:</label>
           <input #uuid="ngModel" required placeholder="Uuid" [(ngModel)]="FormOrg['uuid']" class="form-control"
             type="text">
@@ -151,25 +201,28 @@
             </div>
           </div>
         </div> -->
-        <!-- Phone Number -->
-        <div class="form-group">
-          <label class="font-weight-bold" for="">Phone Number:</label>
-          <input #phoneNumber="ngModel" required placeholder="Phone Number" [(ngModel)]="FormOrg['phoneNumber']"
-            class="form-control" type="text">
+          <!-- Phone Number -->
+          <div class="form-group">
+            <label class="font-weight-bold" for="">Phone Number:</label>
+            <input #phoneNumber="ngModel" required placeholder="Phone Number" [(ngModel)]="FormOrg['phoneNumber']"
+              class="form-control" type="text">
 
-          <div *ngIf="phoneNumber.invalid && (phoneNumber.dirty || phoneNumber.touched)" class="alert alert-danger">
-            <div *ngIf="phoneNumber.errors.required">
-              phoneNumber is required.
+            <div *ngIf="phoneNumber.invalid && (phoneNumber.dirty || phoneNumber.touched)" class="alert alert-danger">
+              <div *ngIf="phoneNumber.errors.required">
+                phoneNumber is required.
+              </div>
             </div>
           </div>
         </div>
+        <button *ngIf="!isEdit" (click)="showFormAdmin()"
+          [innerHTML]="(addAdmin === true)? 'Close Admin Form' : 'Create Admin'"
+          class="btn {{addAdmin ? 'close-btn-primary' : 'btn-primary'}} cursor-pointer"></button>
       </div>
     </nb-card-body>
     <nb-card-footer class="d-flex justify-content-between">
       <a (click)="clear()" class="btn btn-dark text-light cursor-pointer">Back</a>
-      <a *ngIf="isAdd" (click)="createOrgSubmit(FormOrg)" class="btn btn-dark text-light cursor-pointer"
-        [class.disabled]="name.invalid">Save</a>
-      <a *ngIf="isEdit" (click)="editOrgSubmit(FormOrg)" class="btn btn-dark ml-2 text-light cursor-pointer">Save</a>
+      <a (click)="(isEdit) ? editOrgSubmit(FormOrg) : (isAdd) ? createOrg(FormOrg): false"
+        class="btn btn-dark ml-2 text-light cursor-pointer {{(avaiabledUser || avaiabledEmail) ? 'disabled'  : ''}} {{(addAdmin && !FormOrg['adminUser'] || addAdmin && !FormOrg['email'])? 'disabled' : ''}}">Save</a>
     </nb-card-footer>
   </nb-card>
 </div>

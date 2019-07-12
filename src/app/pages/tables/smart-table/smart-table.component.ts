@@ -96,7 +96,7 @@ export class SmartTableComponent implements OnInit {
   }
 
   membersInfo() {
-    this.apiService.membersInfo('')
+    this.apiService.getOrganisations(`/${1}/individual_members`)
       .subscribe(info => {
         this.members = info['hydra:member'];
         for (let i = 0; i < this.members.length; i++) {
@@ -136,7 +136,7 @@ export class SmartTableComponent implements OnInit {
       let idDelete = event.data['@id'];
       if (idDelete) {
         idDelete = idDelete.match(/\d+/g).map(Number);
-        this.apiService.deleteUser(`/${idDelete}`)
+        this.apiService.deleteIndividual(`/${idDelete}`)
           .subscribe(res => {
             console.log('complete')
             this.membersInfo();

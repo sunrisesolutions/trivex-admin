@@ -27,6 +27,7 @@ export class HeaderComponent implements OnInit {
   count;
   countString;
   isOrgAdmin;
+  id;
   constructor(private sidebarService: NbSidebarService,
     private menuService: NbMenuService,
     private userService: UserData,
@@ -44,9 +45,9 @@ export class HeaderComponent implements OnInit {
         if (token.isValid()) {
           localStorage.setItem('token', token['token']) /* SET TOKEN TO LOCAL STORAGE */
           // localStorage.setItem('im_id', token['payload'].im) /* SET IM_ID TO LOCAL STORAGE */
-          let id = token['payload'].im;/* GET IM_ID FROM LOCAL STORAGE */
-          id = id.replace(/\D/g, ''); /* Convert im_id */
-          this.service.userInfo(id).subscribe(res => {
+          this.id = token['payload'].im;/* GET IM_ID FROM LOCAL STORAGE */
+          this.id = this.id.replace(/\D/g, ''); /* Convert im_id */
+          this.service.userInfo(this.id).subscribe(res => {
             this.user = res;
             console.log("info user", res);
           });
@@ -66,6 +67,8 @@ export class HeaderComponent implements OnInit {
         if (title === 'Log out') {
           localStorage.clear(),
             this.router.navigate(['/auth/login'])
+        } else if(title === 'Profile'){
+          this.router.navigate([`/pages/info/profile/${this.id}`])
         }
       })
 

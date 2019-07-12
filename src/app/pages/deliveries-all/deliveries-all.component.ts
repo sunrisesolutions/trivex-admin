@@ -49,7 +49,6 @@ export class DeliveriesAllComponent implements OnInit {
       for (let delivery of this.deliveries) {
         let id = delivery['message'].senderId;
         delivery.idSender = id;
-        console.log(delivery);
         delivery.name = 'Waiting...';
         delivery.picture = 'https://media2.giphy.com/media/FREwu876NMmBy/giphy.gif'
         this.apiService.membersInfo(`/${id}`)

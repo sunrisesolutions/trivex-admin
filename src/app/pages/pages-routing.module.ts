@@ -1,6 +1,7 @@
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 
+import {OrganisationMembersComponent} from './orgizations/organisation-members/organisation-members.component';
 import { PagesComponent } from './pages.component';
 import { ManageEventsComponent } from './manage-events/manage-events.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -9,7 +10,7 @@ import { NotFoundComponent } from './miscellaneous/not-found/not-found.component
 import { HomeComponent } from './home/home.component';
 import { DeliveriesAllComponent } from './deliveries-all/deliveries-all.component';
 import { OrgizationsComponent } from './orgizations/orgizations.component';
-import { isAdminGuardService, isOrgAdminGuardService } from '../auth/auth-admin-guard.service';
+import { InfoComponent } from './info/info.component';
 
 const routes: Routes = [{
   path: '',
@@ -51,8 +52,16 @@ const routes: Routes = [{
     loadChildren: './forms/forms.module#FormsModule',
   },
   {
+    path: 'info/profile/:id',
+    component: InfoComponent
+  },
+  {
     path: 'organisations',
-    component: OrgizationsComponent
+    component: OrgizationsComponent,
+  },
+  {
+    path: 'organisations/:id/organisation-members',
+    component: OrganisationMembersComponent
   },
   {
     path: 'manage-events',

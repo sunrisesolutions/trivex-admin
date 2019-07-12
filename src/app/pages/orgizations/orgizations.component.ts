@@ -5,6 +5,7 @@ import { Component, OnInit, Output, Input } from '@angular/core';
 import { EventEmitter } from 'events';
 import { NbAuthService } from '@nebular/auth';
 import { NbAccessChecker } from '@nebular/security';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'ngx-orgizations',
@@ -16,22 +17,36 @@ export class OrgizationsComponent implements OnInit {
   FormOrg: Array<OrganisationsForm>[] = [];
   goForm: boolean = false;
   orgId;
+  /* Filter */
+  avaiabledUser: Boolean = false;
+  avaiabledEmail: Boolean = false;
+  /* /.Filter */
+  addAdmin: boolean = false;
   isAdd: boolean = false;
   isEdit: boolean = false;
   settings = {
     mode: 'external',
+    actions: {
+      add: true,
+      edit: false,
+      delete: false,
+      custom: [
+        {
+          name: 'Edit',
+          title: '<i class="custom-edit nb-edit"></i>',
+        },
+        {
+          name: 'Delete',
+          title: '<i class="custom-delete nb-trash"></i>',
+        },
+        {
+          name: 'ShowMore',
+          title: '<i class="custom-show nb-list"></i>',
+        },
+      ],
+    },
     add: {
-      addButtonContent: `<i id="add" class="nb-plus text-light"></i>`,
-      createButtonContent: '<i class="nb-checkmark"></i>',
-      cancelButtonContent: '<i class="nb-close"></i>',
-    },
-    edit: {
-      editButtonContent: '<i class="nb-edit"></i>',
-      saveButtonContent: '<i class="nb-checkmark"></i>',
-      cancelButtonContent: '<i class="nb-close"></i>',
-    },
-    delete: {
-      deleteButtonContent: '<i class="nb-trash"></i>',
+      addButtonContent: '<i class="nb-plus"></i>',
     },
     columns: {
       logoReadUrl: {
@@ -53,39 +68,24 @@ export class OrgizationsComponent implements OnInit {
         type: 'string',
 
       },
-      email: {
-        title: 'Email',
-        type: 'string'
-      },
-      dob: {
-        title: 'D.O.B',
-        type: 'string',
-      },
-      nric: {
-        title: 'NRIC/ID Number',
-        type: 'string'
-      },
-      userNameAdmin: {
-        title: 'User Name Admin',
-        type: 'string',
-      },
-      passwordAdmin: {
-        title: 'Password Admin',
-        type: 'string',
-      },
       uuid: {
-        title: 'uuid',
+        title: 'Uuid',
         type: 'string'
       },
+      code: {
+        title: 'Code',
+        type: 'string',
+      },
+      subdomain: {
+        title: 'Subdomain',
+        type: 'string',
+      },
+
 
     },
   };
-  constructor(private apiService: ApiService, private http: HttpClient, private authService: NbAuthService, public accessChecker: NbAccessChecker) {
-    this.authService.onTokenChange().subscribe((token) => {
-      if (token.isValid()) {
-        this.orgId = token['payload'].org;
-      }
-    })
+  constructor(private apiService: ApiService, private http: HttpClient, private authService: NbAuthService, public accessChecker: NbAccessChecker, private router: Router) {
+
   }
 
   ngOnInit() {
@@ -117,58 +117,218 @@ export class OrgizationsComponent implements OnInit {
     this.FormOrg['address'] = event.data['address'];
     this.FormOrg['adminUser'] = event.data['adminUser'];
     this.FormOrg['adminPassword'] = event.data['adminPassword'];
-    this.FormOrg['idPerson'] = event.data['@id']
-    console.log(event);
-
+    this.FormOrg['idOrganisation'] = event.data['@id'];
+    this.FormOrg['logoName'] = event.data['logoName'];
+    this.FormOrg['code'] = event.data['code'];
+    this.FormOrg['subdomain'] = event.data['subdomain'];
+    console.log(event)
 
   }
   /* Cretate */
-  createOrgSubmit(data) {
+  createOrg(dataInput) {
+    dataInput['logoName'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
+    dataInput['logoFile'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
+    console.log(dataInput)
+    let bodyOrganisation = {
+      "logoName": (dataInput['logoName']) ? dataInput['logoName'].name : null,
+      "address": (dataInput['address']) ? dataInput['address'] : null,
+      "name": (dataInput['name']) ? dataInput['name'] : null,
+      "code": (dataInput['code']) ? dataInput['code'] : null,
+      "subdomain": (dataInput['subdomain']) ? dataInput['subdomain'] : null,
+    }
+    if (!this.addAdmin) {
+      this.apiService.createOrganisations(bodyOrganisation)
+        .subscribe(resOrgnisation => {
+          /* Up Logo */
+          let attributes = resOrgnisation['logoWriteForm']['attributes'];
+          let inputs = resOrgnisation['logoWriteForm']['inputs'];
+          let formLogoWrite = new FormData;
+          formLogoWrite.append('Policy', inputs['Policy']);
+          formLogoWrite.append('X-Amz-Algorithm', inputs['X-Amz-Algorithm']);
+          formLogoWrite.append('X-Amz-Credential', inputs['X-Amz-Credential']);
+          formLogoWrite.append('X-Amz-Date', inputs['X-Amz-Date']);
+          formLogoWrite.append('X-Amz-Signature', inputs['X-Amz-Signature']);
+          formLogoWrite.append('acl', inputs['acl']);
+          formLogoWrite.append('key', resOrgnisation['logoWriteForm']['filePath']);
+          formLogoWrite.append('file', dataInput['logoFile'])
+          if (dataInput['logoFile']) {
+            this.apiService.uploadImage(attributes['action'], formLogoWrite)
+              .subscribe(res => {
+
+              })
+          }
+          alert('Successfully.!!!')
+        }, err => {
+          if (err.status === 400) {
+            alert(err.error['hydra:description'])
+            window.stop();
+          } else if (err.status === 403) {
+            alert(err.error['hydra:description'])
+            window.stop();
+          } else if (err === 500) {
+            alert(err.error['hydra:description'])
+            window.stop();
+          }
+        })
+    } else if (this.addAdmin) {
+      if (!this.avaiabledEmail && !this.avaiabledUser) {
+        this.apiService.createOrganisations(bodyOrganisation)
+          .subscribe(resOrgnisation => {
+            /* Up Logo */
+            console.log('create organisation completed')
+            let attributes = resOrgnisation['logoWriteForm']['attributes'];
+            let inputs = resOrgnisation['logoWriteForm']['inputs'];
+            let formLogoWrite = new FormData;
+            formLogoWrite.append('Policy', inputs['Policy']);
+            formLogoWrite.append('X-Amz-Algorithm', inputs['X-Amz-Algorithm']);
+            formLogoWrite.append('X-Amz-Credential', inputs['X-Amz-Credential']);
+            formLogoWrite.append('X-Amz-Date', inputs['X-Amz-Date']);
+            formLogoWrite.append('X-Amz-Signature', inputs['X-Amz-Signature']);
+            formLogoWrite.append('acl', inputs['acl']);
+            formLogoWrite.append('key', resOrgnisation['logoWriteForm']['filePath']);
+            formLogoWrite.append('file', dataInput['logoFile'])
+            if (dataInput['logoFile']) {
+              this.apiService.uploadImage(attributes['action'], formLogoWrite)
+                .subscribe(res => {
+
+                })
+            }
+            this.getOrganisations();
+            this.createOrgSubmit(dataInput, resOrgnisation);
+          }, err => {
+            if (err.status === 400) {
+              alert(err.error['hydra:description'])
+              window.stop();
+            } else if (err.status === 403) {
+              alert(err.error['hydra:description'])
+              window.stop();
+            } else if (err === 500) {
+              alert(err.error['hydra:description'])
+              window.stop();
+            }
+          })
+      }
+    }
+
+  }
+
+  createOrgSubmit(data, getOrganisationId) {
     let mainDate;
     if (data['dob']) {
       mainDate = `${data['dob']['_i'][0]}-0${data['dob']['_i'][1]}-${data['dob']['_i'][2]}`.toLocaleString();
     }
     let bodyPerson = {
-      "givenName": (data['name']) ? data['name'] : null,
+      "givenName": (data['nameAdmin']) ? data['nameAdmin'] : null,
       "birthDate": (mainDate) ? mainDate : null,
       "email": (data['email']) ? data['email'] : null,
       "phoneNumber": (data['phoneNumber']) ? data['phoneNumber'] : null,
       "nationalities": [{
-        "nricNumber": data['nric'],
+        "nricNumber": (data['nric']) ? data['nric'] : null,
       }]
     }
     /* Post to person */
+
     this.apiService.createInfoMember(bodyPerson)
       .subscribe(res => {
-        this.createOrgIndividual(data, res)
+        this.createOrgIndividual(data, res, getOrganisationId)
+      }, err => {
+        if (err.status === 400) {
+          alert(err.error['hydra:description'])
+          return false;
+        } else if (err.status === 403) {
+          alert(err.error['hydra:description'])
+          return false;
+        } else if (err.status === 500) {
+          alert(err.error['hydra:description'])
+          return false;
+        }
       })
-    console.log(data)
 
   }
-  createOrgIndividual(dataInput, getUuidPerson) {
+  createOrgIndividual(dataInput, getUuidPerson, getOrganisationId) {
     let bodyIndividual = {
       "personUuid": getUuidPerson['uuid'],
-      "organisationUuid": this.orgId
+      "organisationUuid": getOrganisationId['uuid'],
+      "admin": this.addAdmin,
     }
     // Post to Individual_Members
     this.apiService.createMember(bodyIndividual)
       .subscribe(res => {
-        this.createOrg(dataInput)
+      }, err => {
+        if (err.status === 400) {
+          alert(`${err.error['hydra:description']}`)
+          return false;
+        } else if (err.status === 403) {
+          alert(`${err.error['hydra:description']}`)
+          return false;
+        } else if (err.status === 500) {
+          alert(`The new user was not created. Please contact to admnistrator.`)
+          return false;
+        }
+      }, () => {
+        this.createOrgUser(dataInput);
       })
 
   }
-  createOrg(dataInput) {
-    dataInput['logoName'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
+  createOrgUser(dataInput) {
+    let mainDate;
+    if (dataInput['dob']) {
+      mainDate = `${dataInput['dob']['_i'][0]}-0${dataInput['dob']['_i'][1]}-${dataInput['dob']['_i'][2]}`.toLocaleString();
+    }
+
+    /* filter user and email */
+    /* /.end */
+
+    if (true) {
+      let bodyCreateUser = {
+        "email": (dataInput['email']) ? dataInput['email'] : null,
+        "plainPassword": (dataInput['adminPassword']) ? dataInput['adminPassword'] : null,
+        "username": (dataInput['adminUser']) ? dataInput['adminUser'] : null,
+        "idNumber": (dataInput['nric']) ? dataInput['nric'] : null,
+        "phone": (dataInput['phoneNumber']) ? dataInput['phoneNumber'] : null,
+        "birthDate": (mainDate) ? mainDate : null,
+      }
+      this.apiService.createUser(bodyCreateUser)
+        .subscribe(res => {
+          this.getOrganisations();
+          this.FormOrg = [];
+          alert('Completed.!!!')
+        }, err => {
+          if (err.status === 400) {
+            alert(`${err.status}`)
+            window.stop();
+          } else if (err.status === 403) {
+            alert(`${err.status}`)
+            window.stop();
+          } else if (err.status === 500) {
+            alert(`${err.status}`)
+            window.stop();
+          }
+        })
+    }
+
+
+
+  }
+
+  /* Edit */
+  editOrgSubmit(dataInput) {
+    let logoName = (<HTMLInputElement>document.getElementById("logo")).files[0];
     dataInput['logoFile'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
     let bodyOrganisation = {
-      "logoName": (dataInput['logoName'].name) ? dataInput['logoName'].name : null,
+      "logoName": (logoName) ? logoName.name : dataInput['logoName'],
       "address": (dataInput['address']) ? dataInput['address'] : null,
       "name": (dataInput['name']) ? dataInput['name'] : null,
+      "code": (dataInput['code']) ? dataInput['code'] : null,
+      "subdomain": (dataInput['subdomain']) ? dataInput['subdomain'] : null,
     }
-    this.apiService.createOrganisations(bodyOrganisation)
+    let idOrganisation = dataInput['idOrganisation'];
+    idOrganisation = idOrganisation.match(/\d+/g, '').map(Number)
+    this.apiService.editOrganisations(bodyOrganisation, idOrganisation)
       .subscribe(res => {
         /* Up Logo */
-        console.log('create organisation completed')
+
+        console.log('edit organisation completed')
         let attributes = res['logoWriteForm']['attributes'];
         let inputs = res['logoWriteForm']['inputs'];
         let formLogoWrite = new FormData;
@@ -183,71 +343,21 @@ export class OrgizationsComponent implements OnInit {
         if (dataInput['logoFile']) {
           this.apiService.uploadImage(attributes['action'], formLogoWrite)
             .subscribe(res => {
-              this.createOrgUser(dataInput)
-              console.log('Upload image completed');
+              this.getOrganisations();
+              this.goForm = false;
+              this.isEdit = false;
             })
         }
-      })
-  }
-  createOrgUser(dataInput) {
-    let mainDate;
-    if (dataInput['dob']) {
-      mainDate = `${dataInput['dob']['_i'][0]}-0${dataInput['dob']['_i'][1]}-${dataInput['dob']['_i'][2]}`.toLocaleString();
-    }
-    let bodyCreateUser = {
-      "email": (dataInput['email']) ? dataInput['email'] : null,
-      "plainPassword": (dataInput['adminPassword']) ? dataInput['adminPassword'] : null,
-      "idNumber": (dataInput['nric']) ? dataInput['nric'] : null,
-      "phone": (dataInput['phoneNumber']) ? dataInput['phoneNumber'] : null,
-      "birthDate": (mainDate) ? mainDate : null
-    }
-    this.apiService.createUser(bodyCreateUser)
-      .subscribe(res => {
-        this.getOrganisations();
         this.FormOrg = [];
-        console.log('User Completed', res)
+        this.getOrganisations();
+        this.goForm = false;
+        this.isEdit = false;
       })
   }
-  /* Edit */
-  editOrgSubmit(dataInput) {
-    let mainDate;
-    if (dataInput['dob']) {
-      mainDate = `${dataInput['dob']['_i'][0]}-0${dataInput['dob']['_i'][1]}-${dataInput['dob']['_i'][2]}`.toLocaleString();
-    }
-    let bodyPerson = {
-      "givenName": (dataInput['name']) ? dataInput['name'] : null,
-      "birthDate": (mainDate) ? mainDate : null,
-      "email": (dataInput['email']) ? dataInput['email'] : null,
-      "phoneNumber": (dataInput['phoneNumber']) ? dataInput['phoneNumber'] : null,
-      "nationalities": [{
-        "nricNumber": dataInput['nric'],
-      }]
-    }
-    /* Post to person */
-    let idPerson = dataInput['idPerson'];
-    idPerson = idPerson.match(/\d+/g,'').map(Number);
-    this.apiService.EditInfoMember(bodyPerson,idPerson)
-      .subscribe(res => {
-        this.editIndividual(dataInput)
-      })
-  }
-  editIndividual(dataInput){
-    let bodyIndividual = {
-      "personUuid": dataInput['uuid'],
-      "organisationUuid": this.orgId
-    }
-    // Post to Individual_Members
-    this.apiService.createMember(bodyIndividual)
-      .subscribe(res => {
 
-        this.createOrg(dataInput)
-
-
-      })
-  }
   /* Delete */
   deleteOrgSubmit(event) {
-    if (window.confirm('Are you want delete?')) {
+    if (window.confirm('Are you sure want to delete this?')) {
       let id = event.data['@id']
       id = id.match(/\d+/g, '').map(Number);
       this.apiService.deleteOrganisations(id)
@@ -263,5 +373,68 @@ export class OrgizationsComponent implements OnInit {
     this.isAdd = false;
     this.isEdit = false;
     this.FormOrg = [];
+    this.addAdmin = false;
+  }
+  showFormAdmin() {
+    this.addAdmin = !this.addAdmin;
+  }
+
+  customButton(event) {
+    console.log(event);
+    if (event.action === 'Edit') {
+      this.edit(event);
+    } else if (event.action === 'Delete') {
+      this.deleteOrgSubmit(event);
+    } else if (event.action === 'ShowMore') {
+      let idOrg = event.data['@id'];
+      idOrg = idOrg.match(/\d+/g, '').map(Number)
+      this.router.navigate([`/pages/organisations/${idOrg}/organisation-members`])
+    }
+  }
+
+
+  filter(dataInput) {
+    let FilterapiUsername;
+    let FilterapiEmail;
+    this.apiService.getUser(`?username=${dataInput['adminUser']}`)
+      .subscribe(userCallback => {
+        if (userCallback['hydra:member'][0]) {
+          FilterapiUsername = userCallback['hydra:member'][0]['username'];
+          this.avaiabledUser = true;
+        } else {
+          this.avaiabledUser = false;
+        }
+      }, err => {
+        if (err.status === 400) {
+          alert(err.error['hydra:description'])
+          return false;
+        } else if (err.status === 403) {
+          alert(err.error['hydra:description'])
+          return false;
+        } else if (err.status === 500) {
+          alert(err.error['hydra:description'])
+          return false;
+        }
+      })
+    this.apiService.getUser(`?email=${dataInput['email']}`)
+      .subscribe(emailCallback => {
+        if (emailCallback['hydra:member'][0]) {
+          this.avaiabledEmail = true;
+          FilterapiEmail = emailCallback['hydra:member'][0]['email'];
+        } else {
+          this.avaiabledEmail = false;
+        }
+      }, err => {
+        if (err.status === 400) {
+          alert(err.error['hydra:description']);
+          return false;
+        } else if (err.status === 403) {
+          alert(err.error['hydra:description']);
+          return false;
+        } else if (err.status === 500) {
+          alert(err.error['hydra:description']);
+          return false;
+        }
+      })
   }
 }

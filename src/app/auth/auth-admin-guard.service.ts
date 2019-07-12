@@ -48,27 +48,3 @@ export class AuthAdminGuardService implements CanActivate, OnInit {
       );
   }
 }
-
-@Injectable({
-  providedIn: 'root'
-})
-export class isAdminGuardService implements CanActivate {
-  constructor(public accessChecker: NbAccessChecker, private authService: NbAuthService, private router: Router) {
-  }
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this.accessChecker.isGranted('access_denied', 'get-out');
-
-  }
-}
-@Injectable({
-  providedIn: 'root',
-})
-export class isOrgAdminGuardService implements CanActivate {
-  constructor(public accessChecker: NbAccessChecker, private authService: NbAuthService, private router: Router) {
-  }
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    return this.accessChecker.isGranted('access_denied', 'get-out');
-
-  }
-
-}

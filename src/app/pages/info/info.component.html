@@ -1,0 +1,35 @@
+<div class="header pb-8 pt-6 pt-md-8 d-flex align-items-center">
+  <!-- Mask -->
+  <span class="mask bg-gradient-danger opacity-8"></span>
+  <!-- Header container -->
+  <div class="container">
+
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-5 col-xl-5 col-md-8 order-xl-2 mb-5 mb-xl-0">
+        <div *ngIf="info" class="card card-profile shadow">
+          <div class="row mt-4 text-center">
+            <div class="col position-relative col-md-12">
+              <img
+                [src]="info['profilePicture']"
+                class="avatar-header shadow">
+            </div>
+          </div>
+          <div class="card-body ml-2 text-center">
+            <div class="container">
+              <h1 class="font-weight-bold">
+                {{info['personData'].name}}<span class="font-weight-light">, {{info['personData'].old}}</span>
+              </h1>
+              <div class="h2 mt-2">
+                {{info['personData'].jobTitle}}
+              </div>
+              <div class="h2">
+                {{info['personData'].employerName}}
+              </div>
+              <hr class="my-4" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

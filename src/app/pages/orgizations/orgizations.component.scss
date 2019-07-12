@@ -1,7 +1,6 @@
-:host /deep/ td.ng-star-inserted{
+:host /deep/ td.ng-star-inserted {
   padding-top: 8px !important;
   padding-bottom: 8px !important;
-
 }
 
 :host /deep/ div.ng-star-inserted {
@@ -13,6 +12,33 @@
   }
 }
 
-.cursor-pointer{
+.cursor-pointer {
   cursor: pointer !important;
+}
+
+:host /deep/ ng2-st-tbody-custom{
+  display: flex !important;
+  padding-right: 6px !important;
+  padding-left: 6px !important;
+}
+:host /deep/ .ng2-smart-actions {
+  height: auto !important;
+}
+:host /deep/ .custom-edit:hover{
+  color: rgb(110, 110, 255) !important;
+}
+:host /deep/ .custom-delete:hover{
+  color: rgb(240, 69, 69) !important;
+}
+:host /deep/ .custom-show:hover{
+  color: rgb(44, 44, 247) !important;
+
+}
+
+
+.btn-primary{
+  background-color: rgb(73, 73, 243) !important;
+}
+.close-btn-primary{
+  background-color: rgb(171, 171, 233) !important;
 }

@@ -1,3 +1,4 @@
+import { RouterModule, ActivatedRouteSnapshot } from '@angular/router';
 import { TablesRoutingModule } from './tables/tables-routing.module';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { NgModule } from '@angular/core';
@@ -15,6 +16,8 @@ import { InfiniteScrollerDirective } from '../directives/infinite-scroller.direc
 import { SmartTableDatepickerRenderComponent } from './smart-table-datepicker-render/smart-table-datepicker-render.component';
 import { NbDatepickerModule } from '@nebular/theme';
 import { OrgizationsComponent } from './orgizations/orgizations.component';
+import { OrganisationMembersComponent} from './orgizations/organisation-members/organisation-members.component';
+import { InfoComponent } from './info/info.component';
 
 const PAGES_COMPONENTS = [
   PagesComponent,
@@ -24,6 +27,7 @@ const PAGES_COMPONENTS = [
   imports: [
     PagesRoutingModule,
     ThemeModule,
+    RouterModule,
     DashboardModule,
     ECommerceModule,
     MiscellaneousModule,
@@ -36,9 +40,11 @@ const PAGES_COMPONENTS = [
     DeliveriesAllComponent,
     ManageEventsComponent,
     OrgizationsComponent,
+    OrganisationMembersComponent,
+    InfoComponent,
   ],
   entryComponents: [
-  ]
+  ],
 })
 export class PagesModule {
 }
