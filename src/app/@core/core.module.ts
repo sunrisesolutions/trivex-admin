@@ -102,11 +102,12 @@ const DATA_SERVICES = [
 
 export function Getter(module: string, res: HttpResponse<Object>, options: NbPasswordAuthStrategyOptions) {
 
-  localStorage.setItem('refresh_token', getDeepFromObject(res.body, 'refresh_token'))
+  localStorage.setItem('refresh_token', getDeepFromObject(res.body, 'refresh_token'));
+  localStorage.setItem('token', getDeepFromObject(res.body, options.token.key));
   return getDeepFromObject(
     res.body,
-    options.token.key
-  )
+    options.token.key,
+  );
 }
 
 
@@ -133,7 +134,7 @@ export const NB_CORE_PROVIDERS = [
         token: {
           class: NbAuthJWTToken,
           key: 'token',
-          getter: Getter
+          getter: Getter,
 
         },
         refreshToken: {
@@ -166,7 +167,7 @@ export const NB_CORE_PROVIDERS = [
         view: ['organisations'],
         create: '*',
         edit: '*',
-        remove: '*'
+        remove: '*',
       },
       ROLE_USER: {
         getOut: ['access-denied'],

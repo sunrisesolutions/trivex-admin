@@ -35,52 +35,54 @@ export class AppComponent implements OnInit {
 
     setInterval(() => {
       this.refreshToken();
-    },2000)
+    }, 2000)
     this.analytics.trackPageViews();
   }
 
 
   refreshToken() {
-    // lấy token
-    const getToken = localStorage.getItem('token');
-    // decode token lấy timestamp
-    let decoded;
-    this.authService.onTokenChange()
-      .subscribe(res => {
-        decoded = res['payload'];
-      })
-    const currentDate = Date.now();
-    const tokenDate = decoded.exp * 1000;
-    if (tokenDate < currentDate) {
-      localStorage.removeItem('token');
-      this.router.navigate(['/login']);
-    } else if (localStorage.getItem('token')) {
+    if (localStorage.getItem('token')) {
+      // lấy token
+      const getToken = localStorage.getItem('token');
+      // decode token lấy timestamp
+      let decoded;
+      this.authService.getToken()
+        .subscribe(res => {
+          decoded = res['payload'];
+        })
+      const currentDate = Date.now();
+      const tokenDate = decoded.exp * 1000;
+      if (tokenDate < currentDate) {
+        localStorage.removeItem('token');
+        this.router.navigate(['/login']);
+      } else if (localStorage.getItem('token')) {
 
-      /*nếu tokendate trừ cho currentdate nhỏ hơn 600000 thì thực hiện refresh*/
-      if (tokenDate - currentDate < 600000) {
-        if (localStorage.getItem('refresh_token')) {
-          this.authService.refreshToken('username', { "refresh_token": localStorage.getItem('refresh_token') })
-            .subscribe(res => {
-            }, error => {
-              if (error.status === 401) {
-                this.router.navigate(['/login']);
-              } else if (error.status === 404) {
-                this.router.navigate(['/login']);
-              } else if (error.status === 405) {
-                this.router.navigate(['/login']);
-              } else if (error.status === 500) {
-                this.router.navigate(['/login']);
-              }
-            });
-        } else {
-          this.router.navigate(['/login']);
+        /*nếu tokendate trừ cho currentdate nhỏ hơn 600000 thì thực hiện refresh*/
+        if (tokenDate - currentDate < 600000) {
+          if (localStorage.getItem('refresh_token')) {
+            this.authService.refreshToken('username', { "refresh_token": localStorage.getItem('refresh_token') })
+              .subscribe(res => {
+              }, error => {
+                if (error.status === 401) {
+                  this.router.navigate(['/login']);
+                } else if (error.status === 404) {
+                  this.router.navigate(['/login']);
+                } else if (error.status === 405) {
+                  this.router.navigate(['/login']);
+                } else if (error.status === 500) {
+                  this.router.navigate(['/login']);
+                }
+              });
+          } else {
+            this.router.navigate(['/login']);
+          }
+
         }
-
+        /* console.log(
+          "2 thoi gian tru cho nhau (sau): ",
+          tokenDate - currentDate
+        ); */
       }
-      /* console.log(
-        "2 thoi gian tru cho nhau (sau): ",
-        tokenDate - currentDate
-      ); */
     }
   }
 }

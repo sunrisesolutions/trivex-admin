@@ -1,10 +1,161 @@
-<nb-card>
+<div *ngIf="!(accessChecker.isGranted('view', 'manage-events') | async)"
+  class="accessChecker container flex-centers p-0">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <nb-card>
+        <nb-card-body class="d-flex justify-content-center">
+          <div class="flex-centered col-xl-4 col-lg-6 col-md-8 col-sm-12">
+            <h2 class="title">403 Access Denied</h2>
+            <h3 class="sub-title">You are not a organisation admin</h3>
+            <button routerLink="/pages/home" type="button" class="btn btn-block btn-hero-primary">
+              Take me home
+            </button>
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </div>
+  </div>
+</div>
+
+
+
+<nb-card *ngIf="(accessChecker.isGranted('view', 'manage-events') | async) && !isForm">
   <nb-card-header>
-    List-Events
+    <h3 class="font-weight-light"> List-Events</h3>
   </nb-card-header>
 
   <nb-card-body>
-    <ng2-smart-table [settings]="settings" [source]="listEvents" (editConfirm)="onEdit($event)" (createConfirm)="onCreate($event)" (deleteConfirm)="onDelete($event)">
+    <ng2-smart-table [settings]="settings" [source]="listEvents" (edit)="onEdit($event);isForm=true;isEdit=true"
+      (create)="isForm=true;isAdd=true" (delete)="onDelete($event)">
     </ng2-smart-table>
   </nb-card-body>
 </nb-card>
+
+
+<!-- Form -->
+<nb-card *ngIf="isForm && (isEdit || isAdd)" class="container-fluid">
+  <nb-card-header>
+    <h3 [innerHtml]="(isAdd) ? 'Create-Event' : (isEdit) ? 'Edit-Event' : ''" class="font-weight-light"></h3>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="">
+      <!-- Name -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Name:</label>
+        <input required minlength="4" #name="ngModel" [(ngModel)]="formEvent['name']" placeholder="Name"
+          class="form-control" type="text">
+        <!-- Validation -->
+        <div *ngIf="name.invalid && (name.dirty || name.touched)" class="alert alert-danger">
+
+          <div *ngIf="name.errors.required">
+            Name is required.
+          </div>
+          <div *ngIf="name.errors.minlength">
+            Name must be at least 4 characters long.
+          </div>
+
+        </div>
+      </div>
+      <!-- StarrtedAt -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Start Time:</label>
+
+        <input #started="ngModel" required [(ngModel)]="formEvent['startedAt']" class="form-control" nbInput
+          [placeholder]="(isAdd) ? 'Start Time': (isEdit) ? formEvent['placeholderStartedAt']: 'Start Time'"
+          [nbDatepicker]="startTime">
+        <nb-datepicker [format]="'YYYY-MM-DD HH:MM'" #startTime></nb-datepicker>
+        <!-- Validation -->
+        <div *ngIf="started.invalid && (started.dirty || started.touched)" class="alert alert-danger">
+
+          <div *ngIf="started.errors.required">
+            Started is required.
+          </div>
+          <div *ngIf="started.errors.minlength">
+            Started must be at least 4 characters long.
+          </div>
+
+        </div>
+      </div>
+      <!-- Ended At -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">End Time:</label>
+        <input #ended="ngModel" required [(ngModel)]="formEvent['endedAt']" class="form-control" nbInput
+          [placeholder]="(isAdd) ? 'End Time': (isEdit) ? formEvent['placeholderEndedAt']: 'End Time'"
+          [nbDatepicker]="endTime">
+        <nb-datepicker [format]="'YYYY-MM-DD HH:MM'" #endTime></nb-datepicker>
+        <!-- Validation -->
+        <div *ngIf="ended.invalid && (ended.dirty || ended.touched)" class="alert alert-danger">
+
+          <div *ngIf="ended.errors.required">
+            Ended is required.
+          </div>
+          <div *ngIf="ended.errors.minlength">
+            Ended must be at least 4 characters long.
+          </div>
+          <div *ngIf="ended.errors.forbiddenName">
+            Ended cannot be Bob.
+          </div>
+
+        </div>
+      </div>
+      <!-- Title -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Title:</label>
+
+        <input required minlength="4" #title="ngModel" [(ngModel)]="formEvent['title']" placeholder="Title"
+          class="form-control" type="text">
+        <!-- Validation -->
+        <div *ngIf="title.invalid && (title.dirty || title.touched)" class="alert alert-danger">
+
+          <div *ngIf="title.errors.required">
+            Title is required.
+          </div>
+          <div *ngIf="title.errors.minlength">
+            Title must be at least 4 characters long.
+          </div>
+          <div *ngIf="title.errors.forbiddenName">
+            Title cannot be Bob.
+          </div>
+
+        </div>
+      </div>
+      <!-- SubTitle -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Sub Title:</label>
+
+        <input required minlength="4" #subtitle="ngModel" [(ngModel)]="formEvent['subtitle']" placeholder="Sub Title"
+          class="form-control" type="text">
+        <!-- Validation -->
+        <div *ngIf="subtitle.invalid && (subtitle.dirty || subtitle.touched)" class="alert alert-danger">
+
+          <div *ngIf="subtitle.errors.required">
+            Sub Title is required.
+          </div>
+          <div *ngIf="subtitle.errors.minlength">
+            Sub Title must be at least 4 characters long.
+          </div>
+          <div *ngIf="subtitle.errors.forbiddenName">
+            Sub Title cannot be Bob.
+          </div>
+
+        </div>
+      </div>
+      <!-- Timezone -->
+      <div class="form-group">
+        <label class="font-weight-bold" for="">Timezone:</label>
+
+        <ng2-timezone-picker [(timezone)]="formEvent['timezone']" [placeholder]="(isAdd) ? '' : (isEdit) ? formEvent['placeholderTimezone'] : '' " >
+
+        </ng2-timezone-picker>
+       <!--  <input required minlength="4" #timezone="ngModel" [(ngModel)]="formEvent['timezone']" placeholder="Timezone"
+          class="form-control" type="text"> -->
+      </div>
+    </div>
+  </nb-card-body>
+  <nb-card-footer class="d-flex justify-content-between">
+    <a class="btn btn-dark text-light cursor-pointer" (click)="clear()">Back</a>
+    <a class="btn btn-dark ml-2 text-light cursor-pointer"
+      (click)="(isAdd) ? onCreate(formEvent) : (isEdit) ? editSubmit(formEvent) : false">Save</a>
+  </nb-card-footer>
+</nb-card>
+<!-- /.Form -->

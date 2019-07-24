@@ -1,4 +1,4 @@
-export class MemberOrgInfo {
+export class Member {
     name: string;
     dob: string;
     email: string;

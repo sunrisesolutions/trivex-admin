@@ -1,6 +1,6 @@
-@import '../../styles/themes';
-@import '~bootstrap/scss/mixins/breakpoints';
-@import '~@nebular/theme/styles/global/breakpoints';
+@import "../../styles/themes";
+@import "~bootstrap/scss/mixins/breakpoints";
+@import "~@nebular/theme/styles/global/breakpoints";
 
 @include nb-install-component() {
   display: flex;
@@ -42,7 +42,6 @@
       i {
         display: block;
       }
-
     }
 
     .logo {
@@ -107,9 +106,9 @@
       animation-name: pulse-light;
 
       &::after {
-        content: ' ';
+        content: " ";
         // hack to be able to set border-radius
-        background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+        background-image: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
         border-radius: 50%;
         pointer-events: none;
 
@@ -154,7 +153,6 @@
   }
 
   @include media-breakpoint-down(md) {
-
     nb-action:not(.toggle-settings) {
       border: none;
     }
@@ -177,14 +175,12 @@
   }
 
   @include media-breakpoint-down(sm) {
-
     nb-user /deep/ .user-name {
       display: none;
     }
   }
 
   @include media-breakpoint-down(is) {
-
     .header-container {
       .logo {
         font-size: 1.25rem;
@@ -211,14 +207,29 @@
   }
 }
 
-:host /deep/ .nb-badge.right{
+:host /deep/ .nb-badge.right {
   right: 15px !important;
 }
 
-.cursor-pointer{
+.cursor-pointer {
   cursor: pointer !important;
 }
 
-:host /deep/ .user-picture.image{
+:host /deep/ .user-picture.image {
   background-position: center;
 }
+
+
+@media only screen and (max-width: 580px) {
+  .responsive-header {
+    margin-right: 15px !important;
+  }
+}
+
+@media only screen and (max-width: 1064px) {
+  .responsive-header {
+    display: inline-block !important;
+  }
+}
+
+

@@ -1,3 +1,5 @@
+import { MessageOptionsComponent } from './message-options/message-options.component';
+import { ListOptionsComponent } from './list-options/list-options.component';
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 
@@ -26,7 +28,16 @@ const routes: Routes = [{
   {
     path: 'iot-dashboard',
     component: DashboardComponent,
-  }, {
+  },
+  {
+   path: 'list-options',
+   component: ListOptionsComponent
+  },
+  {
+    path: 'list-options/:id/message-options',
+    component: MessageOptionsComponent
+  },
+   {
     path: 'ui-features',
     loadChildren: './ui-features/ui-features.module#UiFeaturesModule',
   }, {

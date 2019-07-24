@@ -1,3 +1,4 @@
+import { LocalDataSource } from 'ng2-smart-table';
 import { FormsModule } from './pages/forms/forms.module';
 /**
  * @license
@@ -19,6 +20,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { InfiniteScrollerDirective } from './directives/infinite-scroller.directive';
 import { NbDatepickerModule } from '@nebular/theme';
 import { RouterModule, ActivatedRouteSnapshot } from '@angular/router';
+import {TimezonePickerModule} from 'ng2-timezone-selector';
 
 @NgModule({
   declarations: [AppComponent],

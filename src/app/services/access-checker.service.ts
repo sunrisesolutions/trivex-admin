@@ -26,7 +26,6 @@ export class AccessCheckerService {
         if (this.roles.indexOf('ROLE_USER') > -1) {
           return this.isUser = true;
         }
-        console.log(this.roles, 'isUser', this.isUser)
 
       })
   }

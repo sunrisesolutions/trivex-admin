@@ -1,7 +1,7 @@
 <div class="header-container" [class.left]="position === 'normal'" [class.right]="position === 'inverse'">
   <div class="logo-containter">
     <a (click)="toggleSidebar()" href="#" class="navigation"><i class="nb-menu"></i></a>
-    <div class="logo" (click)="goToHome()">Trives</div>
+    <div class="logo cursor-pointer" (click)="goToHome()">Trives</div>
   </div>
 </div>
 
@@ -9,7 +9,7 @@
 
 <div class="header-container">
 
-  <nb-actions size="medium" [class.right]="position === 'normal'" [class.left]="position === 'inverse'">
+  <nb-actions size="medium" [class.right]="position === 'normal'">
     <nb-action>
       <nb-user class="cursor-pointer" [nbContextMenuTag]="'user-tag'" [nbContextMenu]="userMenu"
         [name]="user?.personData.name" [picture]="user?.profilePicture"></nb-user>
@@ -17,7 +17,7 @@
 
     <nb-action
       [nbContextMenu]="[{title: (count > 0) ?  countString : 'You have no notifications.!!!',link:'/pages/deliveries-all'}]"
-      class="control-item" [badgeStatus]="'danger'" [badgePosition]="'top right'"
+      class="control-item responsive-header" [badgeStatus]="'danger'" [badgePosition]="'top right'"
       [badgeText]="(count > 99) ? '99+':count" icon="nb-notifications"></nb-action>
 
     <nb-action class="control-item">

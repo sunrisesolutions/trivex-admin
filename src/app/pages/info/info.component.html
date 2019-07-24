@@ -6,18 +6,18 @@
 
     <div class="row justify-content-center">
       <div class="col-12 col-lg-5 col-xl-5 col-md-8 order-xl-2 mb-5 mb-xl-0">
-        <div *ngIf="info" class="card card-profile shadow">
+        <div *ngIf="info" class="card card-profile shadow position-relative">
           <div class="row mt-4 text-center">
-            <div class="col position-relative col-md-12">
-              <img
+            <div class="col col-md-12">
+              <img routerLink="/pages/home"
                 [src]="info['profilePicture']"
-                class="avatar-header shadow">
+                class="avatar-header shadow cursor-pointer">
             </div>
           </div>
           <div class="card-body ml-2 text-center">
             <div class="container">
               <h1 class="font-weight-bold">
-                {{info['personData'].name}}<span class="font-weight-light">, {{info['personData'].old}}</span>
+                {{info['personData'].name}}<span class="font-weight-light"></span>
               </h1>
               <div class="h2 mt-2">
                 {{info['personData'].jobTitle}}

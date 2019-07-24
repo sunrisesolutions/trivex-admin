@@ -6,9 +6,11 @@ import { NbAuthService } from '@nebular/auth';
 import { NbAccessChecker } from '@nebular/security';
 import { Router, ActivatedRouteSnapshot, ActivatedRoute } from '@angular/router';
 import { OrganisationsForm } from '../../../models/add-edit-organisations';
-import { MemberOrgInfo } from '../../../models/add-edit-organisation-members';
+import { Member } from '../../../models/add-edit-organisation-members';
 import { DomSanitizer } from '@angular/platform-browser';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
+import { LocalDataSource } from 'ng2-smart-table';
+import { forEach } from '@angular/router/src/utils/collection';
 
 @Component({
   selector: 'ngx-organisation-members',
@@ -16,17 +18,20 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./organisation-members.component.scss'],
 })
 export class OrganisationMembersComponent implements OnInit {
-  ArrayPersonData: Array<MemberOrgInfo>[] = [];
+  memberCount: number = 0;
+  members: Array<Member>[] = [];
   FormOrgMembers: Array<OrganisationsForm>[] = [];
   goForm: boolean = false;
   isAdd: boolean = false;
   isEdit: boolean = false;
   isAdmin: boolean = false;
   orgId;
+  mainPerson: Array<Member>[] = [];
   uuidOrg;
   avaiabledEmail: boolean = false;
   avaiabledUser: boolean = false;
   org = {};
+  source: LocalDataSource = new LocalDataSource();
   statusAdmin: boolean = false;
   settings = {
     mode: 'external',
@@ -52,7 +57,6 @@ export class OrganisationMembersComponent implements OnInit {
           title: `
             <i class="custom-admin-disable cursor-pointer  nb-power"></i>
           `,
-
         },
       ],
     },
@@ -68,9 +72,10 @@ export class OrganisationMembersComponent implements OnInit {
       name: {
         title: 'Name',
         type: 'string',
+
       },
-      userName: {
-        title: 'User Name',
+      dob: {
+        title: 'D.O.B',
         type: 'string',
       },
       email: {
@@ -99,12 +104,15 @@ export class OrganisationMembersComponent implements OnInit {
           return `
             <div class="ng-star-inserted admin-custom">
               <a class="display-5">
-                <i class="${rows['admin'] === true ? 'nb-checkmark-circle custom-admin-active' : ''}"></i>
+                <i class="${cell === true ? 'nb-checkmark-circle custom-admin-active' : ''}"></i>
               </a>
             </div>
           `;
         },
       },
+    },
+    pager: {
+      perPage: 20,
     },
   };
   // tslint:disable-next-line: max-line-length
@@ -131,33 +139,64 @@ export class OrganisationMembersComponent implements OnInit {
     const id = this.routes.snapshot.params.id;
     this.apiService.getOrganisations(`/${id}/individual_members`)
       .subscribe(res => {
-        this.ArrayPersonData = res['hydra:member'];
-        for (const memberInfo of this.ArrayPersonData) {
-          memberInfo['name'] = memberInfo['personData']['name'];
-          memberInfo['dob'] = memberInfo['personData']['dob'];
-          memberInfo['jobTitle'] = memberInfo['personData']['jobTitle'];
-          memberInfo['nric'] = memberInfo['personData']['nric'];
-          memberInfo['phoneNumber'] = memberInfo['personData']['phone'];
-          // this.apiService.getUser(`?email=${memberInfo['personData']['email']}`)
-          //   .subscribe(res => {
-          //     // memberInfo['userName'] =  /* res[0]['username'] */
-          //   })
-        }
+        this.members = res['hydra:member'];
+        this.source.load(this.members);
+
+        this.members.forEach((item, index) => {
+          this.apiService.getPersonByUuid(item['personData']['uuid'])
+            .pipe(
+              filter(n => n['hydra:member'][0]),
+              map(n => n['hydra:member'][0]),
+            ).subscribe(response => {
+              this.apiService.getUser(`?uuid=${response['userUuid']}`)
+                .pipe(
+                  filter(n => n['hydra:member'][0]),
+                  map(n => n['hydra:member'][0]),
+                ).subscribe(responseUser => {
+                  item['username'] = responseUser['username'];
+                  item['idUser'] = responseUser['@id'];
+                }, null, () => {
+                  if (this.memberCount === this.members.length) {
+                    this.source.refresh();
+                    this.memberCount = 0;
+                  }
+                });
+
+              item['email'] = response['email'];
+              item['dob'] = response['birthDate'];
+              item['nric'] = response['nationalities'][0]['nricNumber'];
+              item['dob'] = new Date(response['birthDate']).toLocaleDateString();
+              item['name'] = response['givenName'];
+              item['phone'] = response['phoneNumber'];
+              item['jobTitle'] = response['jobTitle'];
+
+            }, null, () => {
+              this.memberCount++;
+              if (this.memberCount === this.members.length) {
+                this.source.refresh();
+                this.memberCount = 0;
+              }
+            });
+          // tslint:disable-next-line: no-console
+        });
       });
   }
 
-  createMemberSubmit(data) {
+  createMember(data, formUpload) {
+    let bodyIndividual;
     // tslint:disable-next-line: no-console
     console.log(data);
     let mainDate;
     if (data['dob']) {
-      mainDate = `${data['dob']['_i'][0]}-0${data['dob']['_i'][1]}-${data['dob']['_i'][2]}`.toLocaleString();
+      mainDate = `${data['dob']['_i'][0]}-${data['dob']['_i'][1]}-${data['dob']['_i'][2]}`.toLocaleString();
     }
     const body = {
       'birthDate': (mainDate) ? mainDate : null,
+      'jobTitle': (data['jobTitle']) ? data['jobTitle'] : null,
       'givenName': (data['name']) ? data['name'] : '',
       'email': (data['email']) ? data['email'] : null,
       'phoneNumber': (data['phoneNumber']) ? data['phoneNumber'] : '',
+      'userUuid': (data['userUuid']) ? data['userUuid'] : null,
       'nationalities': (data['nric']) ? [
         {
           'nricNumber': (data['nric']) ? data['nric'] : null,
@@ -170,14 +209,28 @@ export class OrganisationMembersComponent implements OnInit {
       .subscribe(res => {
         // tslint:disable-next-line: no-console
         console.log(res);
-        const bodyIndividual = {
+        bodyIndividual = {
           'personUuid': res['uuid'],
           'organisationUuid': this.uuidOrg,
           'admin': (this.isAdmin === true) ? true : false,
         };
+
+      }, err => {
+        if (err.status === 404) {
+          alert('You can’t create a Member right now. Try check your field.');
+        } else if (err.status === 400) {
+          alert('You can’t create a Member right now. Try check your field.');
+        } else if (err.status === 500) {
+          alert('Server error.!!!');
+        }
+      }, () => {
         this.apiService.createMember(bodyIndividual)
-          .subscribe(res => {
-            this.createUser(data);
+          .subscribe(response => {
+            console.log('individual member', response)
+            console.log('form upload',data);
+            this.isAdmin = false;
+            this.FormOrgMembers = [];
+            this.getMembers();
           }, err => {
             if (err.status === 404) {
               alert('You can’t create a Member right now. Try again later.');
@@ -188,25 +241,20 @@ export class OrganisationMembersComponent implements OnInit {
             }
 
           });
-      }, err => {
-        if (err.status === 404) {
-          alert('You can’t create a Member right now. Try check your field.');
-        } else if (err.status === 400) {
-          alert('You can’t create a Member right now. Try check your field.');
-        } else if (err.status === 500) {
-          alert('Server error.!!!');
-        }
       });
 
     /* /.Submit */
   }
 
-  createUser(dataInput) {
+  createMemberSubmit(dataInput) {
+    dataInput['logoName'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
+    dataInput['logoFile'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
     let dob;
     if (dataInput['dob']) {
       dob = `${dataInput['dob']['_i'][0]}-0${dataInput['dob']['_i'][1]}-${dataInput['dob']['_i'][2]}`.toLocaleString();
     }
     const bodyUser = {
+      'pictureName': dataInput['logoName'].name,
       'email': (dataInput['email']) ? dataInput['email'] : null,
       'plainPassword': (dataInput['userPassword']) ? dataInput['userPassword'] : null,
       'username': (dataInput['userName']) ? dataInput['userName'] : null,
@@ -215,69 +263,160 @@ export class OrganisationMembersComponent implements OnInit {
     };
     this.apiService.createUser(bodyUser)
       .subscribe(res => {
-        // tslint:disable-next-line: no-console
-        this.getMembers();
-        this.FormOrgMembers = [];
-        this.isAdmin = false;
-        console.log('user created', res);
+
+        dataInput['userUuid'] = res['uuid'];
+        console.log(res)
+        /* let attributes = res['logoWriteForm']['attributes'];
+        let inputs = res['logoWriteForm']['inputs'];
+        let formLogoWrite = new FormData;
+        formLogoWrite.append('Policy', inputs['Policy']);
+        formLogoWrite.append('X-Amz-Algorithm', inputs['X-Amz-Algorithm']);
+        formLogoWrite.append('X-Amz-Credential', inputs['X-Amz-Credential']);
+        formLogoWrite.append('X-Amz-Date', inputs['X-Amz-Date']);
+        formLogoWrite.append('X-Amz-Signature', inputs['X-Amz-Signature']);
+        formLogoWrite.append('acl', inputs['acl']);
+        formLogoWrite.append('key', res['logoWriteForm']['filePath']);
+        formLogoWrite.append('file', dataInput['logoFile']) */
+        // if (dataInput['logoFile']) {
+        //   this.apiService.uploadImage(attributes['action'], formLogoWrite)
+        //     .subscribe(res => {
+
+        //     })
+        // }
+        this.createMember(dataInput, res);
+      }, err => {
+        let FilterapiUsername;
+        let FilterapiEmail;
+        if (err.status === 404) {
+          alert('You can’t create a Member right now. Try again later.');
+        } else if (err.status === 400) {
+          alert('You can’t create a Member right now. Try check your field.');
+        }
+
+        this.apiService.getUser(`?username=${dataInput['userName']}`)
+          .subscribe(userCallback => {
+            if (userCallback['hydra:member'][0]) {
+              FilterapiUsername = userCallback['hydra:member'][0]['userName'];
+              alert(`The username ${dataInput['userName']} already exists. Please use a different username.`);
+            }
+          }, error => {
+            if (error.status === 400) {
+              alert(error.error['hydra:description']);
+              return false;
+            } else if (error.status === 404) {
+              alert(error.error['hydra:description']);
+              return false;
+            } else if (error.status === 500) {
+              alert(error.error['hydra:description']);
+              return false;
+            }
+          });
+        this.apiService.getUser(`?email=${dataInput['email']}`)
+          .subscribe(emailCallback => {
+            if (emailCallback['hydra:member'][0]) {
+              FilterapiEmail = emailCallback['hydra:member'][0]['email'];
+              alert(`The email ${dataInput['email']} already exists. Please use a different username.`);
+            } else {
+              this.avaiabledEmail = false;
+            }
+          }, error => {
+            if (error.status === 400) {
+              alert(error.error['hydra:description']);
+              return false;
+            } else if (error.status === 403) {
+              alert(error.error['hydra:description']);
+              return false;
+            } else if (error.status === 500) {
+              alert(error.error['hydra:description']);
+              return false;
+            }
+          });
       });
   }
 
   editMemberSubmit(data) {
-    if (window.confirm('Are you sure you want to edit?')) {
-      // tslint:disable-next-line: no-console
-      console.log(data);
-      let mainDate;
-      if (data['dob']) {
-        mainDate = `${data['dob']['_i'][0]}-0${data['dob']['_i'][1]}-${data['dob']['_i'][2]}`.toLocaleString();
-      }
-      let id = data['id'];
-      id = id.match(/\d+/g).map(Number);
-      const body = {
-        'birthDate': (mainDate) ? mainDate : null,
-        'givenName': (data['name']) ? data['name'] : '',
-        'email': (data['email']) ? data['email'] : null,
-        'phoneNumber': (data['phoneNumber']) ? data['phoneNumber'] : '',
-        'nationalities': (data['nric']) ? [
-          {
-            'nricNumber': (data['nric']) ? data['nric'] : null,
-          },
-        ] : [],
-      };
-      this.apiService.EditInfoMember(body, id)
-        .subscribe(res => {
-          // tslint:disable-next-line: no-console
-          console.log(res);
-          this.EditUser;
-        }, err => {
-          if (err.status === 404) {
-            alert('You can’t edit a Member right now. Try check your field.');
-          } else if (err.status === 400) {
-            alert('You can’t edit a Member right now. Try check your field.');
-          } else if (err.status === 500) {
-            alert('Server error.!!!');
-          }
-
-        });
+    // tslint:disable-next-line: no-console
+    let mainDate;
+    if (data['dob']) {
+      mainDate = `${data['dob']['_i'][0]}-${data['dob']['_i'][1]}-${data['dob']['_i'][2]}`.toLocaleString();
     }
+    let id = data['id'];
+    id = id.match(/\d+/g).map(Number);
+    const body = {
+      'birthDate': (mainDate) ? mainDate : data['dobPlaceholder'],
+      'givenName': (data['name']) ? data['name'] : data['name'],
+      'jobTitle': (data['jobTitle']) ? data['jobTitle'] : data['jobTitle'],
+      'email': (data['email']) ? data['email'] : data['email'],
+      'phoneNumber': (data['phoneNumber']) ? data['phoneNumber'] : data['phoneNumber'],
+      'nationalities': (data['nric']) ? [
+        {
+          'nricNumber': data['nric'],
+        },
+      ] : [],
+    };
+    this.apiService.EditInfoMember(body, id)
+      .subscribe(res => {
+        this.FormOrgMembers = [];
+        this.goForm = false;
+        this.isEdit = false;
+
+      }, err => {
+        if (err.status === 404) {
+          alert('You can’t edit a Member right now. Try check your field.');
+        } else if (err.status === 400) {
+          alert('You can’t edit a Member right now. Try check your field.');
+        } else if (err.status === 500) {
+          alert('Server error.!!!');
+        }
+
+      });
   }
   EditUser(dataInput) {
     let dob;
     // tslint:disable-next-line: no-console
-    console.log(dataInput);
-    if (dataInput['dob']) {
-      dob = `${dataInput['dob']['_i'][0]}-0${dataInput['dob']['_i'][1]}-${dataInput['dob']['_i'][2]}`.toLocaleString();
+    if (window.confirm('Are you sure you want to edit?')) {
+      if (!this.avaiabledEmail && !this.avaiabledUser) {
+        if (dataInput['dob']) {
+          // tslint:disable-next-line: max-line-length
+          dob = `${dataInput['dob']['_i'][0]}-0${dataInput['dob']['_i'][1]}-${dataInput['dob']['_i'][2]}`.toLocaleString();
+        }
+        const editBodyUser = {
+          'email': (dataInput['email']) ? dataInput['email'] : '',
+          'jobTitle': (dataInput['jobTitle']) ? dataInput['jobTitle'] : '',
+          'plainPassword': (dataInput['userPassword']) ? dataInput['userPassword'] : '',
+          'username': (dataInput['userName']) ? dataInput['userName'] : '',
+          'phone': (dataInput['phoneNumber']) ? dataInput['phoneNumber'] : '',
+          'birthDate': (dataInput['dob']) ? dob : dataInput['dobPlaceholder'],
+        };
+        let idUser = dataInput['idUser'];
+        idUser = idUser.match(/\d+/g).map(Number);
+        this.apiService.editUser(editBodyUser, idUser)
+          .subscribe(res => {
+            this.getMembers;
+            this.FormOrgMembers = [];
+            this.goForm = false;
+            this.isEdit = false;
+
+            // tslint:disable-next-line: no-console
+            console.log(res);
+          }, err => {
+            let FilterapiUsername;
+            let FilterapiEmail;
+            if (err.status === 404) {
+              alert(err.error['hydra:description']);
+            } else if (err.status === 400) {
+              alert(err.error['hydra:description']);
+            } else if (err.status === 500) {
+              alert(err.error['hydra:description']);
+            }
+          }, () => {
+            this.getMembers();
+            this.editMemberSubmit(dataInput);
+          });
+      }
+
     }
-    const editBodyUser = {
-      'email': (dataInput['email']) ? dataInput['email'] : null,
-      'plainPassword': (dataInput['userPassword']) ? dataInput['userPassword'] : null,
-      'username': (dataInput['userName']) ? dataInput['userName'] : null,
-      'phone': (dataInput['phoneNumber']) ? dataInput['phoneNumber'] : null,
-      'birhDate': (dob) ? dob : null,
-    };
-    this.FormOrgMembers = [];
-    this.goForm = false;
-    this.isEdit = false;
+
     // this.apiService.editUser(editBodyUser,)
   }
 
@@ -295,52 +434,124 @@ export class OrganisationMembersComponent implements OnInit {
   edit(event) {
     this.goForm = true;
     this.isEdit = true;
+    console.log(event);
+    this.FormOrgMembers['idUser'] = event.data['idUser'];
+    this.FormOrgMembers['userName'] = event.data['username'];
+    // console.log(responseUser)
+    this.apiService.getPersonByUuid(event.data['personData']['uuid'])
+      .pipe(
+        filter(n => n['hydra:member'][0]),
+        map(n => n['hydra:member'][0]),
+      ).subscribe(response => {
+        this.FormOrgMembers['id'] = response['@id'];
+        // console.log(response);
 
-
-    this.FormOrgMembers['id'] = event.data['@id'];
+      });
     this.FormOrgMembers['name'] = event.data['name'];
-    this.FormOrgMembers['dob'] = event.data['dob'];
+    this.FormOrgMembers['dobPlaceholder'] = event.data['dob'];
     this.FormOrgMembers['email'] = event.data['email'];
-    this.FormOrgMembers['job'] = event.data['jobTitle'];
+    this.FormOrgMembers['jobTitle'] = event.data['jobTitle'];
     this.FormOrgMembers['nric'] = event.data['nric'];
-    this.FormOrgMembers['phoneNumber'] = event.data['phoneNumber'];
+    this.FormOrgMembers['phoneNumber'] = event.data['phone'];
 
     // tslint:disable-next-line: no-console
-    console.log(event);
 
   }
   deleteMememberSubmit(event) {
     if (window.confirm('Are you sure you want to delete?')) {
-      let idDelete = event.data['@id'];
-      if (idDelete) {
-        idDelete = idDelete.match(/\d+/g).map(Number);
-        this.apiService.deleteIndividual(`/${idDelete}`)
-          .subscribe(res => {
-            this.getMembers();
-          }, err => {
-            if (err.status === 404) {
-              alert('You can\'t do that at this time. Please contact your Administrator');
-            } else if (err.status === 400) {
-              alert('You can\'t do that at this time. Please contact your Administrator');
-            } else if (err.status === 500) {
-              alert('You can\'t do that at this time. Please contact your Administrator');
-            }
+      /* personDelete */
+      this.apiService.getPersonByUuid(event.data.personData.uuid)
+        .subscribe(res => {
+          if (res['hydra:member'][0]) {
+            res['hydra:member'][0]['@id'] = res['hydra:member'][0]['@id'].match(/\d+/g).map(Number);
+            this.apiService.DeletePerson(res['hydra:member'][0]['@id'])
+              .subscribe(res => {
+              }, err => {
+                if (err.status === 404) {
+                  alert(err.error['hydra:description']);
+                } else if (err.status === 400) {
+                  alert(err.error['hydra:description']);
+                } else if (err.status === 500) {
+                  alert(err.error['hydra:description']);
+                }
+              }, () => {
+                let idDelete = event.data['@id'];
+                let idUser = event.data['idUser'];
+                if (idDelete && idUser) {
+                  idUser = idUser.match(/\d+/g).map(Number);
+                  idDelete = idDelete.match(/\d+/g).map(Number);
+                  this.apiService.deleteIndividual(`/${idDelete}`)
+                    .subscribe(res => {
+                    }, err => {
+                      if (err.status === 404) {
+                        alert(err.error['hydra:description']);
+                      } else if (err.status === 400) {
+                        alert(err.error['hydra:description']);
+                      } else if (err.status === 500) {
+                        alert(err.error['hydra:description']);
+                      }
 
-          });
-      }
+                    }, () => {
+                      this.getMembers();
+                      this.apiService.deleteUser(`${idUser}`)
+                        .subscribe(res => {
+                          alert('successfully')
+                        }, err => {
+                          if (err.status === 404) {
+                            alert(err.error['hydra:description']);
+                          } else if (err.status === 400) {
+                            alert(err.error['hydra:description']);
+                          } else if (err.status === 500) {
+                            alert("Member has been deleted but User has not been deleted.");
+                          }
+
+                        }, () => {
+                        });
+                    });
+                } else {
+                  return false;
+                }
+
+              })
+          }
+        }, err => {
+          if (err.status === 404) {
+            alert(err.error['hydra:description']);
+          } else if (err.status === 400) {
+            alert(err.error['hydra:description']);
+          } else if (err.status === 500) {
+            alert(err.error['hydra:description']);
+          }
+        });
+      /* /.PersonDelete */
+
+
     }
   }
 
   setAdmin(event) {
-    let setAdmin = {
-      "admin":!event.data['admin']
-    }
+    const setAdmin = {
+      'personUuid': event.data['personData'].uuid,
+      'organisationUuid': this.uuidOrg,
+      'admin': !event.data['admin'],
+    };
 
-    this.apiService.setAdmin(setAdmin,event.data['@id'])
-      .subscribe(res=>{
-      },null,()=>{
-        return this.getMembers()
-      })
+
+    this.apiService.setAdmin(setAdmin, event.data['@id'])
+      .subscribe(res => {
+      }, err => {
+        if (err.status === 400) {
+          alert(err.error['hydra:description']);
+        } else if (err.status === 401) {
+          alert(err.error['hydra:description']);
+        } else if (err.status === 404) {
+          alert(err.error['hydra:description']);
+        } else if (err.status === 500) {
+          alert(err.error['hydra:description']);
+        }
+      }, () => {
+        return this.getMembers();
+      });
   }
 
   customAction(event) {
@@ -350,52 +561,103 @@ export class OrganisationMembersComponent implements OnInit {
     } else if (event.action === 'Delete') {
       this.deleteMememberSubmit(event);
     } else if (event.action === 'Admin') {
-      this.setAdmin(event)
+      this.setAdmin(event);
     }
   }
-  filter(dataInput) {
+
+  filter(dataInput, eventUser, eventEmail) {
     let FilterapiUsername;
     let FilterapiEmail;
-    this.apiService.getUser(`?username=${dataInput['userName']}`)
-      .subscribe(userCallback => {
-        if (userCallback['hydra:member'][0]) {
-          FilterapiUsername = userCallback['hydra:member'][0]['userName'];
-          this.avaiabledUser = true;
-        } else {
-          this.avaiabledUser = false;
-        }
-      }, err => {
-        if (err.status === 400) {
-          alert(err.error['hydra:description'])
-          return false;
-        } else if (err.status === 403) {
-          alert(err.error['hydra:description'])
-          return false;
-        } else if (err.status === 500) {
-          alert(err.error['hydra:description'])
-          return false;
-        }
-      })
-    this.apiService.getUser(`?email=${dataInput['email']}`)
-      .subscribe(emailCallback => {
-        if (emailCallback['hydra:member'][0]) {
-          this.avaiabledEmail = true;
-          FilterapiEmail = emailCallback['hydra:member'][0]['email'];
-        } else {
-          this.avaiabledEmail = false;
-        }
-      }, err => {
-        if (err.status === 400) {
-          alert(err.error['hydra:description']);
-          return false;
-        } else if (err.status === 403) {
-          alert(err.error['hydra:description']);
-          return false;
-        } else if (err.status === 500) {
-          alert(err.error['hydra:description']);
-          return false;
-        }
-      })
+    if (this.isAdd) {
+      this.apiService.getUser(`?username=${dataInput['userName']}`)
+        .subscribe(userCallback => {
+          if (userCallback['hydra:member'][0]) {
+            FilterapiUsername = userCallback['hydra:member'][0]['userName'];
+            this.avaiabledUser = true;
+          } else {
+            this.avaiabledUser = false;
+          }
+        }, err => {
+          if (err.status === 400) {
+            alert(err.error['hydra:description']);
+            return false;
+          } else if (err.status === 403) {
+            alert(err.error['hydra:description']);
+            return false;
+          } else if (err.status === 500) {
+            alert(err.error['hydra:description']);
+            return false;
+          }
+        });
+      this.apiService.getUser(`?email=${dataInput['email']}`)
+        .subscribe(emailCallback => {
+          if (emailCallback['hydra:member'][0]) {
+            this.avaiabledEmail = true;
+            FilterapiEmail = emailCallback['hydra:member'][0]['email'];
+          } else {
+            this.avaiabledEmail = false;
+          }
+        }, err => {
+          if (err.status === 400) {
+            alert(err.error['hydra:description']);
+            return false;
+          } else if (err.status === 403) {
+            alert(err.error['hydra:description']);
+            return false;
+          } else if (err.status === 500) {
+            alert(err.error['hydra:description']);
+            return false;
+          }
+        });
+    }
+    if (this.isEdit) {
+      if (eventUser) {
+        this.apiService.getUser(`?username=${eventUser}`)
+          .subscribe(userCallback => {
+            if (userCallback['hydra:member'][0]) {
+              FilterapiUsername = userCallback['hydra:member'][0]['userName'];
+              this.avaiabledUser = true;
+            } else {
+              this.avaiabledUser = false;
+            }
+          }, err => {
+            if (err.status === 400) {
+              alert(err.error['hydra:description']);
+              return false;
+            } else if (err.status === 403) {
+              alert(err.error['hydra:description']);
+              return false;
+            } else if (err.status === 500) {
+              alert(err.error['hydra:description']);
+              return false;
+            }
+          });
+      }
+      if (eventEmail) {
+        this.apiService.getUser(`?email=${eventEmail}`)
+          .subscribe(emailCallback => {
+            if (emailCallback['hydra:member'][0]) {
+              this.avaiabledEmail = true;
+              FilterapiEmail = emailCallback['hydra:member'][0]['email'];
+            } else {
+              this.avaiabledEmail = false;
+            }
+          }, err => {
+            if (err.status === 400) {
+              alert(err.error['hydra:description']);
+              return false;
+            } else if (err.status === 403) {
+              alert(err.error['hydra:description']);
+              return false;
+            } else if (err.status === 500) {
+              alert(err.error['hydra:description']);
+              return false;
+            }
+          });
+      }
+    }
   }
+
+
 }
 

@@ -1,0 +1,13 @@
+.card {
+  border-radius: 10px;
+}
+.card-header {
+  background: #111218;
+}
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+:host /deep/ .custom-list:hover {
+  color: rgb(47, 116, 206) !important;
+}

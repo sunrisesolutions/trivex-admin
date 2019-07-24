@@ -19,7 +19,9 @@
 
 
 
-<div *ngIf="accessChecker.isGranted('view', 'organisations') | async" class="accessChecker">
+<div
+  (keyup.enter)="(isEdit === true && !avaiabledUser && !avaiabledEmail) ? EditUser(FormOrgMembers) : (isAdd === true && !avaiabledUser && !avaiabledEmail) ? createMemberSubmit(FormOrgMembers) : false"
+  *ngIf="accessChecker.isGranted('view', 'organisations') | async" class="accessChecker">
   <nb-card *ngIf="(!goForm) ? true : false">
     <nb-card-header>
       <h1 class="font-weight-bold">{{org['name'] | uppercase}}</h1>
@@ -27,7 +29,7 @@
     </nb-card-header>
 
     <nb-card-body>
-      <ng2-smart-table (create)="create($event)" (custom)="customAction($event)" [source]="ArrayPersonData"
+      <ng2-smart-table (create)="create($event)" (custom)="customAction($event)" [source]="source"
         [settings]="settings">
       </ng2-smart-table>
     </nb-card-body>
@@ -37,11 +39,11 @@
 
   <nb-card *ngIf="(goForm == true) ? true : false" class="container-fluid">
     <nb-card-header>
-      <h1 *ngIf="isAdd">Member Info</h1>
-      <h2 *ngIf="isEdit">Member Info</h2>
+      <h1>Member Info</h1>
+      <h1 *ngIf="isAdd">Add Member</h1>
+      <h2 *ngIf="isEdit">Edit Member</h2>
     </nb-card-header>
-    <nb-card-body
-      (keyup.enter)="(isEdit === true) ? editMemberSubmit(FormOrgMembers) : (isAdd === true) ? createMemberSubmit(FormOrgMembers) : false">
+    <nb-card-body>
       <div class="">
         <!-- Name -->
         <div class="form-group">
@@ -64,11 +66,27 @@
 
           </div>
         </div>
+        <!-- JobTitle -->
+        <div class="form-group">
+          <label class="font-weight-bold" for="">Job:</label>
+
+          <input required minlength="4" #job="ngModel" [(ngModel)]="FormOrgMembers['jobTitle']" placeholder="Job"
+            class="form-control" type="text">
+          <!-- Validation -->
+          <div *ngIf="job.invalid && (job.dirty || job.touched) && isAdd" class="alert alert-danger">
+
+            <div *ngIf="job.errors.required">
+              Job is required.
+            </div>
+
+          </div>
+        </div>
         <!-- DOB -->
         <div class="form-group">
           <label class="font-weight-bold" for="">D.O.B:</label>
           <input #dob="ngModel" required [(ngModel)]="FormOrgMembers['dob']" class="form-control" nbInput
-            placeholder="Choose a Date/Time" [nbDatepicker]="formpicker">
+            [placeholder]="(isAdd) ? 'Choose a Date/Time' : FormOrgMembers['dobPlaceholder']"
+            [nbDatepicker]="formpicker">
           <nb-datepicker [format]="'YYYY-MM-DD'" #formpicker></nb-datepicker>
 
           <div *ngIf="dob.invalid && (dob.dirty || dob.touched) && isAdd" class="alert alert-danger">
@@ -80,10 +98,11 @@
         <!-- email -->
         <div class="form-group">
           <label class="font-weight-bold" for="">Email:</label>
-          <input (focus)="avaiabledEmail = false" (focusout)="filter(FormOrgMembers)" #email="ngModel" required
-            placeholder="Email" [(ngModel)]="FormOrgMembers['email']" class="form-control" type="text">
+          <input #inputEmail (ngModelChange)="filter(FormOrgMembers,null,$event)"
+            (focus)="(!isEdit) ? avaiabledEmail = false:''" (focusout)="filter(FormOrgMembers)" #email="ngModel"
+            required placeholder="Email" [(ngModel)]="FormOrgMembers['email']" class="form-control" type="text">
 
-          <div *ngIf="avaiabledEmail" class="alert alert-danger">
+          <div *ngIf="avaiabledEmail && FormOrgMembers['email']" class="alert alert-danger">
             <p>The email {{FormOrgMembers['email']}} already exists. Please use a different email.</p>
           </div>
           <div *ngIf="email.invalid && (email.dirty || email.touched)" class="alert alert-danger">
@@ -104,18 +123,11 @@
             </div>
           </div>
         </div>
-        <!-- uuid -->
-        <!-- <div class="form-group">
-          <label class="font-weight-bold" for="">UUID:</label>
-          <input #uuid="ngModel" required placeholder="Uuid" [(ngModel)]="FormOrg['uuid']" class="form-control"
-            type="text">
-
-          <div *ngIf="uuid.invalid && (uuid.dirty || uuid.touched)" class="alert alert-danger">
-            <div *ngIf="uuid.errors.required">
-              Password is required.
-            </div>
-          </div>
-        </div> -->
+        <!-- Logo -->
+        <div class="form-group">
+          <label class="font-weight-bold mr-2" for="">Logo:</label>
+          <input id="logo" type="file" class="" accept="image/*">
+        </div>
         <!-- Phone Number -->
         <div class="form-group">
           <label class="font-weight-bold" for="">Phone Number:</label>
@@ -131,9 +143,10 @@
         <!-- User Name -->
         <div class="form-group">
           <label class="font-weight-bold" for="">User Name:</label>
-          <input (focus)="avaiabledUser = false" (focusout)="filter(FormOrgMembers)" #userName="ngModel" required
-            placeholder="User Name" [(ngModel)]="FormOrgMembers['userName']" class="form-control" type="text">
-          <div *ngIf="avaiabledUser" class="alert alert-danger">
+          <input #inputUser (ngModelChange)="filter(FormOrgMembers,$event,null)"
+            (focus)="(!isEdit) ? avaiabledUser = false:''" (focusout)="filter(FormOrgMembers)" #userName="ngModel"
+            required placeholder="User Name" [(ngModel)]="FormOrgMembers['userName']" class="form-control" type="text">
+          <div *ngIf="avaiabledUser && FormOrgMembers['userName']" class="alert alert-danger">
             <p>The username {{FormOrgMembers['userName']}} already exists. Please use a different username.</p>
           </div>
           <div *ngIf="userName.invalid && (userName.dirty || userName.touched)" class="alert alert-danger">
@@ -150,7 +163,7 @@
 
           <div *ngIf="userPassword.invalid && (userPassword.dirty || userPassword.touched)" class="alert alert-danger">
             <div *ngIf="userPassword.errors.required">
-              User Name is required.
+              Password is required.
             </div>
           </div>
         </div>
@@ -165,7 +178,7 @@
     </nb-card-body>
     <nb-card-footer class="d-flex justify-content-between">
       <a (click)="clear()" class="btn btn-dark text-light cursor-pointer">Back</a>
-      <a (click)="(isEdit) ? editMemberSubmit(FormOrgMembers) : (isAdd) ? createMemberSubmit(FormOrgMembers): false"
+      <a (click)="(isEdit) ? EditUser(FormOrgMembers) : (isAdd) ? createMemberSubmit(FormOrgMembers): false"
         class="btn btn-dark ml-2 text-light cursor-pointer {{(avaiabledUser || avaiabledEmail) ? 'disabled'  : ''}} ">Save</a>
     </nb-card-footer>
   </nb-card>

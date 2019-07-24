@@ -3,11 +3,11 @@ import { Http } from '@angular/http';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-const orgAPI = "https://org.api.trivesg.com";
-const deliveriesAPI = "https://messaging.api.trivesg.com";
-const postMessage = "https://messaging.api.trivesg.com";
-const createMember = "https://person.api.trivesg.com";
-const userApi = "https://user.api.trivesg.com";
+const orgAPI = 'https://org.api.trivesg.com';
+const eventAPI = 'https://event.api.trivesg.com';
+const messagingAPI = 'https://messaging.api.trivesg.com';
+const createMember = 'https://person.api.trivesg.com';
+const userApi = 'https://user.api.trivesg.com';
 /* HEADER */
 /* /.HEADER */
 
@@ -26,7 +26,7 @@ export class ApiService {
         "Authorization": `Bearer ${localStorage.getItem("token")}`
       })
     };
-    return this.httpClient.get(`${orgAPI}/individual_members/${id}`, httpOptions);
+    return this.httpClient.get(`${orgAPI}/individual_members${id}`, httpOptions);
   }
 
 
@@ -47,9 +47,9 @@ export class ApiService {
         "Authorization": `Bearer ${localStorage.getItem("token")}`
       })
     };
-    return this.httpClient.get(`${deliveriesAPI}/deliveries?${endpoint}${page}`, httpOptions);
+    return this.httpClient.get(`${messagingAPI}/deliveries?${endpoint}${page}`, httpOptions);
   }
-  /* Read MEssage */
+  /* MEssage API*/
   readDelivery(read, id): Observable<Object> {
     const httpOptions = {
       headers: new HttpHeaders({
@@ -57,10 +57,83 @@ export class ApiService {
         "Authorization": `Bearer ${localStorage.getItem("token")}`
       })
     };
-    return this.httpClient.put(`${postMessage}${id}`, read, httpOptions);
+    return this.httpClient.put(`${messagingAPI}${id}`, read, httpOptions);
   }
-
-  /* Manage Member API */
+  /*  OptionSets API */
+  optionSetsGet(id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.get(`${messagingAPI}/option_sets${id}`, httpOptions);
+  }
+  optionSetsPost(body) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.post(`${messagingAPI}/option_sets`, body, httpOptions);
+  }
+  optionSetsPut(body, id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.put(`${messagingAPI}/option_sets/${id}`, body, httpOptions);
+  }
+  optionSetsDelete(id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.delete(`${messagingAPI}${id}`, httpOptions);
+  }
+  /* Message Option API */
+  messageOptionsPost(body) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.post(`${messagingAPI}/message_options`, body, httpOptions);
+  }
+  messageOptionsPut(body, id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.put(`${messagingAPI}/message_options/${id}`, body, httpOptions);
+  }
+  messageOptionsDelete(id) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.delete(`${messagingAPI}/message_options/${id}`, httpOptions);
+  }
+  messageOptionsGet(page) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.get(`${messagingAPI}/message_option${page}`, httpOptions);
+  }
+  /* Manage Person API */
 
   createInfoMember(body) {
     const httpOptions = {
@@ -88,6 +161,15 @@ export class ApiService {
       })
     };
     return this.httpClient.delete(`${createMember}/people/${id}`, httpOptions);
+  }
+  getPersonByUuid(uuid) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.get(`${createMember}/people?uuid=${uuid}`, httpOptions);
   }
   /* Individual_Members */
   createMember(body) {
@@ -126,6 +208,15 @@ export class ApiService {
       })
     };
     return this.httpClient.get(`${orgAPI}/organisations${id}`, httpOptions)
+  }
+  getOrgByUuid(uuid) {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        "accept": "application/ld+json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      })
+    };
+    return this.httpClient.get(`${orgAPI}/organisations?uuid=${uuid}`, httpOptions)
   }
   createOrganisations(body) {
     const httpOptions = {
@@ -212,5 +303,41 @@ export class ApiService {
     };
     return this.httpClient.delete(`${userApi}/users/${id}`, httpOptions)
   }
-
+  /* EVENTS API */
+  eventGet(page): Observable<Object> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'accept': 'application/ld+json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      }),
+    };
+    return this.httpClient.get(`${eventAPI}/events${page}`, httpOptions);
+  }
+  eventPost(body): Observable<Object> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'accept': 'application/ld+json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      }),
+    };
+    return this.httpClient.post(`${eventAPI}/events`, body, httpOptions);
+  }
+  eventPut(body, id): Observable<Object> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'accept': 'application/ld+json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      }),
+    };
+    return this.httpClient.put(`${eventAPI}${id}`, body, httpOptions);
+  }
+  eventDelete(id): Observable<Object> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'accept': 'application/ld+json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      }),
+    };
+    return this.httpClient.delete(`${eventAPI}${id}`, httpOptions);
+  }
 }

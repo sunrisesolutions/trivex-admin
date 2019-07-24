@@ -18,6 +18,9 @@ import { NbDatepickerModule } from '@nebular/theme';
 import { OrgizationsComponent } from './orgizations/orgizations.component';
 import { OrganisationMembersComponent} from './orgizations/organisation-members/organisation-members.component';
 import { InfoComponent } from './info/info.component';
+import { ListOptionsComponent } from './list-options/list-options.component';
+import { TimezonePickerModule } from 'ng2-timezone-selector';
+import { MessageOptionsComponent } from './message-options/message-options.component';
 
 const PAGES_COMPONENTS = [
   PagesComponent,
@@ -32,6 +35,7 @@ const PAGES_COMPONENTS = [
     ECommerceModule,
     MiscellaneousModule,
     Ng2SmartTableModule,
+    TimezonePickerModule.forRoot(),
   ],
   declarations: [
     ...PAGES_COMPONENTS,
@@ -42,6 +46,8 @@ const PAGES_COMPONENTS = [
     OrgizationsComponent,
     OrganisationMembersComponent,
     InfoComponent,
+    ListOptionsComponent,
+    MessageOptionsComponent,
   ],
   entryComponents: [
   ],

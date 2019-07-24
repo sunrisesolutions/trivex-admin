@@ -1,0 +1,33 @@
+<div *ngIf="!(accessChecker.isGranted('view', 'manage-members') | async)"
+  class="accessChecker container flex-centers p-0">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <nb-card>
+        <nb-card-body class="d-flex justify-content-center">
+          <div class="flex-centered col-xl-4 col-lg-6 col-md-8 col-sm-12">
+            <h2 class="title">403 Access Denied</h2>
+            <h3 class="sub-title">You are not a organisation admin</h3>
+            <button routerLink="/pages/home" type="button" class="btn btn-block btn-hero-primary">
+              Take me home
+            </button>
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="(accessChecker.isGranted('view', 'manage-members') | async)" class="container">
+  <nb-card class="card">
+    <nb-card-header class="card-header">
+      <h1 class="text-light">{{optionName}}</h1>
+      <h5 class="text-light">List Message Options</h5>
+    </nb-card-header>
+    <nb-card-body class="card-body">
+      <ng2-smart-table (createConfirm)="createMessageOption($event)" (custom)="customActions($event)" (editConfirm)="editMessageOption($event)" (deleteConfirm)="deleteMessageOption($event)" [source]="optionSetsSource"
+        [settings]="settings">
+      </ng2-smart-table>
+    </nb-card-body>
+  </nb-card>
+</div>

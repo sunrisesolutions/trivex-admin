@@ -10,35 +10,46 @@ import { forEach } from '@angular/router/src/utils/collection';
   styleUrls: ['pages.component.scss'],
   template: `
     <ngx-sample-layout>
-      <nb-menu [items]="getMenu()"></nb-menu>
+      <nb-menu [items]="getMenu(roles)"></nb-menu>
       <router-outlet></router-outlet>
     </ngx-sample-layout>
   `,
 })
 export class PagesComponent {
-  roles:Array<String>;
-  constructor(private authService: NbAuthService) {
+  roles: Array<String>;
+  constructor(private authService: NbAuthService, public accessChecker: NbAccessChecker) {
     this.roles = ['ROLE_USER'];
-    this.authService.onTokenChange()
+    this.authService.getToken()
       .subscribe((token) => {
         if (token.isValid()) {
           this.roles = token['payload']['roles'];
+          // this.getMenu(token.getPayload()['roles']);
         }
-      })
+      });
 
   }
 
-  getMenu(){
-    if(this.roles.indexOf('ROLE_ADMIN')>-1){
-      return this.adminMenu;
-    }
-    if(this.roles.indexOf('ROLE_ORG_ADMIN')>-1){
-      return this.orgAdminMenu;
+  getMenu(roles) {
+    if (roles) {
+      if (roles.indexOf('ROLE_ADMIN') > -1) {
+        if (roles.indexOf('ROLE_ORG_ADMIN') > -1) {
+          return this.adminMenu.concat(this.orgAdminMenu);
+        } else {
+          return this.adminMenu;
+        }
+      }
+      if (roles.indexOf('ROLE_ORG_ADMIN') > -1) {
+        if (roles.indexOf('ROLE_ADMIN') > -1) {
+          return this.orgAdminMenu.concat(this.adminMenu);
+        } else {
+          return this.orgAdminMenu;
+        }
+      }
     }
 
   }
 
-  orgAdminMenu = [{
+  orgAdminMenu: Array<any> = [{
     title: 'Home',
     icon: 'nb-home',
     link: '/pages/home',
@@ -48,8 +59,8 @@ export class PagesComponent {
     icon: 'nb-paper-plane',
     expanded: true,
     children: [
-      { title: 'Events', link: '/pages/manage-events' }
-    ]
+      { title: 'Events', link: '/pages/manage-events' },
+    ],
   },
   {
     title: 'Manage-Members',
@@ -61,18 +72,34 @@ export class PagesComponent {
         link: '/pages/manage-members/members',
       },
     ],
+
+  },
+  {
+    title: 'Message Options',
+    icon: 'nb-email',
+    link: '/pages/list-options',
   },
   {
     title: 'Configuration',
     icon: 'nb-gear',
     expanded: true,
     children: [
-      { title: 'ComingSoon' }
+      { title: 'ComingSoon' },
     ],
-  }]
+  }];
 
-  adminMenu = [
-    { title: 'Organisations', icon: 'nb-flame-circled', link: '/pages/organisations' }
+  adminMenu: Array<any> = [
+    {
+      title: 'Home',
+      icon: 'nb-home',
+      link: '/pages/home',
+      home: true,
+    },
+    {
+      title: 'Organisations',
+      icon: 'nb-flame-circled',
+      link: '/pages/organisations',
+    },
   ];
   getOut() {
     localStorage.clear();

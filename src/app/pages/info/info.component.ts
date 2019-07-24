@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { ActivatedRouteSnapshot, ActivatedRoute } from '@angular/router';
 import { ApiService } from './../../services/api.service';
 import { Component, OnInit } from '@angular/core';
@@ -9,18 +10,27 @@ import { Component, OnInit } from '@angular/core';
 })
 export class InfoComponent implements OnInit {
   info;
-  constructor(private apiService: ApiService, private routes: ActivatedRoute) { }
+  constructor(private apiService: ApiService, private routes: ActivatedRoute, public httpClient: HttpClient) { }
 
   ngOnInit() {
     this.getInfoUser();
   }
 
   getInfoUser() {
-    let id = +this.routes.snapshot.params.id;
+    const id = +this.routes.snapshot.params.id;
     this.apiService.getInfoUser(`${id}`)
       .subscribe(res => {
-        this.info = res
-      })
+        this.info = res;
+        this.httpClient.get(this.info['profilePicture'])
+          .subscribe(res => {
+
+          }, error => {
+            if (error.status === 404) {
+              this.info['profilePicture'] = 'https://i.gifer.com/B0eS.gif'
+            }
+          });
+
+      });
   }
 
 }

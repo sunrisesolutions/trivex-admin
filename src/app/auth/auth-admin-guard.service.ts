@@ -16,7 +16,6 @@ export class AuthAdminGuardService implements CanActivate, OnInit {
   public isAdmin: boolean = false;
   public isOrgAdmin: boolean = false;
   public isUser: boolean = false;
-
   constructor(public accessChecker: NbAccessChecker, private authService: NbAuthService, private router: Router) {
 
   }
@@ -28,17 +27,17 @@ export class AuthAdminGuardService implements CanActivate, OnInit {
       .pipe(
         tap(authenticated => {
           if (!authenticated) {
-            localStorage.clear();
             this.router.navigate(['/auth/login']);
           } else {
-            this.authService.onTokenChange()
+            this.authService.getToken()
               .subscribe((token: NbAuthJWTToken) => {
-                if (token['payload']['roles'].length === 1 || token['payload']['roles'][0] == 'ROLE_USER') {
-                  alert('You are not a admin');
-                  localStorage.clear();
-                  this.router.navigate(['/auth/login']);
-                  this.canActivate;
-                  return false;
+                if (token['payload']['roles'].length === 1) {
+                  if (token['payload']['roles'][0] === 'ROLE_USER') {
+                    alert('You are not a admin.!!!');
+                    localStorage.clear();
+                    this.router.navigate(['/auth/login']);
+                    return false;
+                  }
                 } else {
                   return true;
                 }

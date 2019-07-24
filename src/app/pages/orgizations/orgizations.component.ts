@@ -380,7 +380,6 @@ export class OrgizationsComponent implements OnInit {
   }
 
   customButton(event) {
-    console.log(event);
     if (event.action === 'Edit') {
       this.edit(event);
     } else if (event.action === 'Delete') {
