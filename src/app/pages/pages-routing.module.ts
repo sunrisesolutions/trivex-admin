@@ -23,7 +23,7 @@ const routes: Routes = [{
   },
   {
     path: 'deliveries-all',
-    component: DeliveriesAllComponent
+    component: DeliveriesAllComponent,
   },
   {
     path: 'iot-dashboard',
@@ -31,11 +31,11 @@ const routes: Routes = [{
   },
   {
    path: 'list-options',
-   component: ListOptionsComponent
+   component: ListOptionsComponent,
   },
   {
     path: 'list-options/:id/message-options',
-    component: MessageOptionsComponent
+    component: MessageOptionsComponent,
   },
    {
     path: 'ui-features',
@@ -64,7 +64,7 @@ const routes: Routes = [{
   },
   {
     path: 'info/profile/:id',
-    component: InfoComponent
+    component: InfoComponent,
   },
   {
     path: 'organisations',
@@ -72,11 +72,11 @@ const routes: Routes = [{
   },
   {
     path: 'organisations/:id/organisation-members',
-    component: OrganisationMembersComponent
+    component: OrganisationMembersComponent,
   },
   {
     path: 'manage-events',
-    component: ManageEventsComponent
+    component: ManageEventsComponent,
   },
   {
     path: 'manage-members',

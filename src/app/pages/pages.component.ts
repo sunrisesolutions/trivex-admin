@@ -84,7 +84,10 @@ export class PagesComponent {
     icon: 'nb-gear',
     expanded: true,
     children: [
-      { title: 'ComingSoon' },
+      {
+        title: 'Organisation Info',
+        link: '/pages/organisations',
+      },
     ],
   }];
 

@@ -11,8 +11,8 @@ export const MENU_ITEMS: NbMenuItem[] = [
     icon: 'nb-paper-plane',
     expanded: true,
     children: [
-      { title: 'Events', link: '/pages/manage-events' }
-    ]
+      { title: 'Events', link: '/pages/manage-events' },
+    ],
   },
   {
     title: 'Manage-Members',
@@ -30,14 +30,17 @@ export const MENU_ITEMS: NbMenuItem[] = [
     icon: 'nb-gear',
     expanded: true,
     children: [
-      { title: 'ComingSoon' }
+      {
+        title: 'Organisation Info',
+        link: '/pages/organisations',
+      },
     ],
   },
   (1 > 2) ? {
     title: 'Organizations',
     icon: 'nb-flame-circled',
-    link: '/pages/organisations'
-  } : null
+    link: '/pages/organisations',
+  } : null,
 
   // {
   //   title: 'IoT Dashboard',
