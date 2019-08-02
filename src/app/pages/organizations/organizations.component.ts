@@ -12,7 +12,7 @@ import {Router} from '@angular/router';
   styleUrls: ['./organizations.component.scss'],
 })
 export class OrganizationsComponent implements OnInit {
-  orgInfo: Array<OrganisationsForm>[] = [];
+  orgs: Array<OrganisationsForm>[] = [];
   FormOrg: Array<OrganisationsForm>[] = [];
   goForm: boolean = false;
   orgId;
@@ -92,15 +92,24 @@ export class OrganizationsComponent implements OnInit {
     this.getOrganisations();
   }
 
-
   getOrganisations() {
     this.apiService.getOrganisations('')
       .subscribe(res => {
-        this.orgInfo = res['hydra:member'];
-        for (const org of this.orgInfo) {
-          org['logoReadUrl'] = (org['logoReadUrl'] !== null) ? org['logoReadUrl'] : 'http://ventureasheville.com/wp-content/uploads/2015/09/logo-placeholder.jpg';
+        this.orgs = res['hydra:member'];
+        if (this.orgs.length === 1) {
+          const org = this.orgs[0];
+          let idOrg = org['@id'];
+          idOrg = idOrg.match(/\d+/g, '').map(Number);
+          const url = `/pages/organisations/${idOrg}`;
+          console.log('let\'s navigate to ', url);
+          this.router.navigate([`/pages/organisations/${idOrg}`]);
+
+        } else {
+          for (const org of this.orgs) {
+            org['logoReadUrl'] = (org['logoReadUrl'] !== null) ? org['logoReadUrl'] : 'http://ventureasheville.com/wp-content/uploads/2015/09/logo-placeholder.jpg';
+          }
         }
-        console.log(res);
+        console.log('orgs res is', res);
       });
   }
 

@@ -158,7 +158,7 @@ export const NB_CORE_PROVIDERS = [
   NbSecurityModule.forRoot({
     accessControl: {
       ROLE_ORG_ADMIN: {
-        view: ['manage-members', 'manage-events'],
+        view: ['manage-members', 'manage-events', 'organisation'],
         create: '*',
         edit: '*',
         remove: '*',

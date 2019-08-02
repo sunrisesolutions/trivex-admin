@@ -33,7 +33,7 @@ export class AuthAdminGuardService implements CanActivate, OnInit {
               .subscribe((token: NbAuthJWTToken) => {
                 if (token['payload']['roles'].length === 1) {
                   if (token['payload']['roles'][0] === 'ROLE_USER') {
-                    alert('You are not a admin.!!!');
+                    alert('You are not an admin.!!!');
                     localStorage.clear();
                     this.router.navigate(['/auth/login']);
                     return false;
