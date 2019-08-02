@@ -79,7 +79,7 @@ const routes: Routes = [{
       component: ManageEventsComponent,
     },
     {
-      path: 'manage-events/:id/registration',
+      path: 'manage-events/:id/registrations',
       component: RegistrationComponent
     },
     {

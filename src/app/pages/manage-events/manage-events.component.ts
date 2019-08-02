@@ -171,7 +171,7 @@ export class ManageEventsComponent implements OnInit {
   customActions(event){
     console.log(event);
     if(event.action === 'Event-Registration'){
-      this.router.navigate([`/pages/manage-events/${event.data['@id'].match(/\d+/g).map(Number)}/registration`])
+      this.router.navigate([`/pages/manage-events/${event.data['@id'].match(/\d+/g).map(Number)}/registrations`])
     }
   }
 }

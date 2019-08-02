@@ -19,7 +19,7 @@
 
 
 
-<nb-card *ngIf="(accessChecker.isGranted('view', 'manage-events') | async) && !isForm">
+<nb-card *ngIf="(accessChecker.isGranted('view', 'manage-events') | async)">
   <nb-card-header>
     <h3 class="font-weight-light"> List-Events-Registration</h3>
   </nb-card-header>
