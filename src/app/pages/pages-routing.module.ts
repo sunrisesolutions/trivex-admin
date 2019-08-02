@@ -3,7 +3,7 @@ import { ListOptionsComponent } from './list-options/list-options.component';
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 
-import {OrganisationMembersComponent} from './orgizations/organisation-members/organisation-members.component';
+import {OrganisationMembersComponent} from './organizations/organisation-members/organisation-members.component';
 import { PagesComponent } from './pages.component';
 import { ManageEventsComponent } from './manage-events/manage-events.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -11,7 +11,7 @@ import { ECommerceComponent } from './e-commerce/e-commerce.component';
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
 import { HomeComponent } from './home/home.component';
 import { DeliveriesAllComponent } from './deliveries-all/deliveries-all.component';
-import { OrgizationsComponent } from './orgizations/orgizations.component';
+import { OrganizationsComponent } from './organizations/organizations.component';
 import { InfoComponent } from './info/info.component';
 
 const routes: Routes = [{
@@ -68,7 +68,7 @@ const routes: Routes = [{
   },
   {
     path: 'organisations',
-    component: OrgizationsComponent,
+    component: OrganizationsComponent,
   },
   {
     path: 'organisations/:id/organisation-members',

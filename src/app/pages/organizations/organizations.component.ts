@@ -1,18 +1,17 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { OrganisationsForm } from './../../models/add-edit-organisations';
-import { ApiService } from './../../services/api.service';
-import { Component, OnInit, Output, Input } from '@angular/core';
-import { EventEmitter } from 'events';
-import { NbAuthService } from '@nebular/auth';
-import { NbAccessChecker } from '@nebular/security';
-import { Router } from '@angular/router';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {OrganisationsForm} from './../../models/add-edit-organisations';
+import {ApiService} from './../../services/api.service';
+import {Component, OnInit, Output, Input} from '@angular/core';
+import {NbAuthService} from '@nebular/auth';
+import {NbAccessChecker} from '@nebular/security';
+import {Router} from '@angular/router';
 
 @Component({
-  selector: 'ngx-orgizations',
-  templateUrl: './orgizations.component.html',
-  styleUrls: ['./orgizations.component.scss']
+  selector: 'ngx-organizations',
+  templateUrl: './organizations.component.html',
+  styleUrls: ['./organizations.component.scss'],
 })
-export class OrgizationsComponent implements OnInit {
+export class OrganizationsComponent implements OnInit {
   orgInfo: Array<OrganisationsForm>[] = [];
   FormOrg: Array<OrganisationsForm>[] = [];
   goForm: boolean = false;
@@ -56,7 +55,7 @@ export class OrgizationsComponent implements OnInit {
         valuePrepareFunction: (cell, row) => {
           return cell = `
             <div class="container-fluid p-0 d-flex justify-content-center"><img src="${row.logoReadUrl}"></div>
-          `
+          `;
         },
       },
       name: {
@@ -70,7 +69,7 @@ export class OrgizationsComponent implements OnInit {
       },
       uuid: {
         title: 'Uuid',
-        type: 'string'
+        type: 'string',
       },
       code: {
         title: 'Code',
@@ -84,6 +83,7 @@ export class OrgizationsComponent implements OnInit {
 
     },
   };
+
   constructor(private apiService: ApiService, private http: HttpClient, private authService: NbAuthService, public accessChecker: NbAccessChecker, private router: Router) {
 
   }
@@ -97,11 +97,11 @@ export class OrgizationsComponent implements OnInit {
     this.apiService.getOrganisations('')
       .subscribe(res => {
         this.orgInfo = res['hydra:member'];
-        for (let org of this.orgInfo) {
+        for (const org of this.orgInfo) {
           org['logoReadUrl'] = (org['logoReadUrl'] !== null) ? org['logoReadUrl'] : 'http://ventureasheville.com/wp-content/uploads/2015/09/logo-placeholder.jpg';
         }
-        console.log(res)
-      })
+        console.log(res);
+      });
   }
 
   /* Request */
@@ -109,6 +109,7 @@ export class OrgizationsComponent implements OnInit {
     this.goForm = true;
     this.isAdd = true;
   }
+
   edit(event) {
     this.goForm = true;
     this.isEdit = true;
@@ -121,28 +122,29 @@ export class OrgizationsComponent implements OnInit {
     this.FormOrg['logoName'] = event.data['logoName'];
     this.FormOrg['code'] = event.data['code'];
     this.FormOrg['subdomain'] = event.data['subdomain'];
-    console.log(event)
+    console.log(event);
 
   }
+
   /* Cretate */
   createOrg(dataInput) {
-    dataInput['logoName'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
-    dataInput['logoFile'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
-    console.log(dataInput)
-    let bodyOrganisation = {
-      "logoName": (dataInput['logoName']) ? dataInput['logoName'].name : null,
-      "address": (dataInput['address']) ? dataInput['address'] : null,
-      "name": (dataInput['name']) ? dataInput['name'] : null,
-      "code": (dataInput['code']) ? dataInput['code'] : null,
-      "subdomain": (dataInput['subdomain']) ? dataInput['subdomain'] : null,
-    }
+    dataInput['logoName'] = (<HTMLInputElement>document.getElementById('logo')).files[0];
+    dataInput['logoFile'] = (<HTMLInputElement>document.getElementById('logo')).files[0];
+    console.log(dataInput);
+    const bodyOrganisation = {
+      'logoName': (dataInput['logoName']) ? dataInput['logoName'].name : null,
+      'address': (dataInput['address']) ? dataInput['address'] : null,
+      'name': (dataInput['name']) ? dataInput['name'] : null,
+      'code': (dataInput['code']) ? dataInput['code'] : null,
+      'subdomain': (dataInput['subdomain']) ? dataInput['subdomain'] : null,
+    };
     if (!this.addAdmin) {
       this.apiService.createOrganisations(bodyOrganisation)
         .subscribe(resOrgnisation => {
           /* Up Logo */
-          let attributes = resOrgnisation['logoWriteForm']['attributes'];
-          let inputs = resOrgnisation['logoWriteForm']['inputs'];
-          let formLogoWrite = new FormData;
+          const attributes = resOrgnisation['logoWriteForm']['attributes'];
+          const inputs = resOrgnisation['logoWriteForm']['inputs'];
+          const formLogoWrite = new FormData;
           formLogoWrite.append('Policy', inputs['Policy']);
           formLogoWrite.append('X-Amz-Algorithm', inputs['X-Amz-Algorithm']);
           formLogoWrite.append('X-Amz-Credential', inputs['X-Amz-Credential']);
@@ -150,35 +152,35 @@ export class OrgizationsComponent implements OnInit {
           formLogoWrite.append('X-Amz-Signature', inputs['X-Amz-Signature']);
           formLogoWrite.append('acl', inputs['acl']);
           formLogoWrite.append('key', resOrgnisation['logoWriteForm']['filePath']);
-          formLogoWrite.append('file', dataInput['logoFile'])
+          formLogoWrite.append('file', dataInput['logoFile']);
           if (dataInput['logoFile']) {
             this.apiService.uploadImage(attributes['action'], formLogoWrite)
               .subscribe(res => {
 
-              })
+              });
           }
-          alert('Successfully.!!!')
+          alert('Successfully.!!!');
         }, err => {
           if (err.status === 400) {
-            alert(err.error['hydra:description'])
+            alert(err.error['hydra:description']);
             window.stop();
           } else if (err.status === 403) {
-            alert(err.error['hydra:description'])
+            alert(err.error['hydra:description']);
             window.stop();
           } else if (err === 500) {
-            alert(err.error['hydra:description'])
+            alert(err.error['hydra:description']);
             window.stop();
           }
-        })
+        });
     } else if (this.addAdmin) {
       if (!this.avaiabledEmail && !this.avaiabledUser) {
         this.apiService.createOrganisations(bodyOrganisation)
           .subscribe(resOrgnisation => {
             /* Up Logo */
-            console.log('create organisation completed')
-            let attributes = resOrgnisation['logoWriteForm']['attributes'];
-            let inputs = resOrgnisation['logoWriteForm']['inputs'];
-            let formLogoWrite = new FormData;
+            console.log('create organisation completed');
+            const attributes = resOrgnisation['logoWriteForm']['attributes'];
+            const inputs = resOrgnisation['logoWriteForm']['inputs'];
+            const formLogoWrite = new FormData;
             formLogoWrite.append('Policy', inputs['Policy']);
             formLogoWrite.append('X-Amz-Algorithm', inputs['X-Amz-Algorithm']);
             formLogoWrite.append('X-Amz-Credential', inputs['X-Amz-Credential']);
@@ -186,27 +188,27 @@ export class OrgizationsComponent implements OnInit {
             formLogoWrite.append('X-Amz-Signature', inputs['X-Amz-Signature']);
             formLogoWrite.append('acl', inputs['acl']);
             formLogoWrite.append('key', resOrgnisation['logoWriteForm']['filePath']);
-            formLogoWrite.append('file', dataInput['logoFile'])
+            formLogoWrite.append('file', dataInput['logoFile']);
             if (dataInput['logoFile']) {
               this.apiService.uploadImage(attributes['action'], formLogoWrite)
                 .subscribe(res => {
 
-                })
+                });
             }
             this.getOrganisations();
             this.createOrgSubmit(dataInput, resOrgnisation);
           }, err => {
             if (err.status === 400) {
-              alert(err.error['hydra:description'])
+              alert(err.error['hydra:description']);
               window.stop();
             } else if (err.status === 403) {
-              alert(err.error['hydra:description'])
+              alert(err.error['hydra:description']);
               window.stop();
             } else if (err === 500) {
-              alert(err.error['hydra:description'])
+              alert(err.error['hydra:description']);
               window.stop();
             }
-          })
+          });
       }
     }
 
@@ -217,59 +219,61 @@ export class OrgizationsComponent implements OnInit {
     if (data['dob']) {
       mainDate = `${data['dob']['_i'][0]}-0${data['dob']['_i'][1]}-${data['dob']['_i'][2]}`.toLocaleString();
     }
-    let bodyPerson = {
-      "givenName": (data['nameAdmin']) ? data['nameAdmin'] : null,
-      "birthDate": (mainDate) ? mainDate : null,
-      "email": (data['email']) ? data['email'] : null,
-      "phoneNumber": (data['phoneNumber']) ? data['phoneNumber'] : null,
-      "nationalities": [{
-        "nricNumber": (data['nric']) ? data['nric'] : null,
-      }]
-    }
+    const bodyPerson = {
+      'givenName': (data['nameAdmin']) ? data['nameAdmin'] : null,
+      'birthDate': (mainDate) ? mainDate : null,
+      'email': (data['email']) ? data['email'] : null,
+      'phoneNumber': (data['phoneNumber']) ? data['phoneNumber'] : null,
+      'nationalities': [{
+        'nricNumber': (data['nric']) ? data['nric'] : null,
+      }],
+    };
     /* Post to person */
 
     this.apiService.createInfoMember(bodyPerson)
       .subscribe(res => {
-        this.createOrgIndividual(data, res, getOrganisationId)
+        this.createOrgIndividual(data, res, getOrganisationId);
       }, err => {
         if (err.status === 400) {
-          alert(err.error['hydra:description'])
+          alert(err.error['hydra:description']);
           return false;
         } else if (err.status === 403) {
-          alert(err.error['hydra:description'])
+          alert(err.error['hydra:description']);
           return false;
         } else if (err.status === 500) {
-          alert(err.error['hydra:description'])
+          alert(err.error['hydra:description']);
           return false;
         }
-      })
+      });
 
   }
+
   createOrgIndividual(dataInput, getUuidPerson, getOrganisationId) {
-    let bodyIndividual = {
-      "personUuid": getUuidPerson['uuid'],
-      "organisationUuid": getOrganisationId['uuid'],
-      "admin": this.addAdmin,
-    }
+    const bodyIndividual = {
+      'personUuid': getUuidPerson['uuid'],
+      'organisationUuid': getOrganisationId['uuid'],
+      'admin': this.addAdmin,
+    };
     // Post to Individual_Members
     this.apiService.createMember(bodyIndividual)
       .subscribe(res => {
       }, err => {
         if (err.status === 400) {
-          alert(`${err.error['hydra:description']}`)
+          alert(`${err.error['hydra:description']}`);
           return false;
         } else if (err.status === 403) {
-          alert(`${err.error['hydra:description']}`)
+          alert(`${err.error['hydra:description']}`);
           return false;
         } else if (err.status === 500) {
-          alert(`The new user was not created. Please contact to admnistrator.`)
+          alert(`The new user was not created. Please contact to admnistrator.`);
           return false;
         }
       }, () => {
         this.createOrgUser(dataInput);
-      })
+      });
 
   }
+
   createOrgUser(dataInput) {
     let mainDate;
     if (dataInput['dob']) {
@@ -279,59 +283,59 @@ export class OrgizationsComponent implements OnInit {
     /* filter user and email */
     /* /.end */
 
-    if (true) {
-      let bodyCreateUser = {
-        "email": (dataInput['email']) ? dataInput['email'] : null,
-        "plainPassword": (dataInput['adminPassword']) ? dataInput['adminPassword'] : null,
-        "username": (dataInput['adminUser']) ? dataInput['adminUser'] : null,
-        "idNumber": (dataInput['nric']) ? dataInput['nric'] : null,
-        "phone": (dataInput['phoneNumber']) ? dataInput['phoneNumber'] : null,
-        "birthDate": (mainDate) ? mainDate : null,
-      }
-      this.apiService.createUser(bodyCreateUser)
-        .subscribe(res => {
-          this.getOrganisations();
-          this.FormOrg = [];
-          alert('Completed.!!!')
-        }, err => {
-          if (err.status === 400) {
-            alert(`${err.status}`)
-            window.stop();
-          } else if (err.status === 403) {
-            alert(`${err.status}`)
-            window.stop();
-          } else if (err.status === 500) {
-            alert(`${err.status}`)
-            window.stop();
-          }
-        })
-    }
-
+    // if (true) {
+    let bodyCreateUser: { plainPassword: any; phone: any; idNumber: any; birthDate: any; email: any; username: any };
+    bodyCreateUser = {
+      'email': (dataInput['email']) ? dataInput['email'] : null,
+      'plainPassword': (dataInput['adminPassword']) ? dataInput['adminPassword'] : null,
+      'username': (dataInput['adminUser']) ? dataInput['adminUser'] : null,
+      'idNumber': (dataInput['nric']) ? dataInput['nric'] : null,
+      'phone': (dataInput['phoneNumber']) ? dataInput['phoneNumber'] : null,
+      'birthDate': (mainDate) ? mainDate : null,
+    };
+    this.apiService.createUser(bodyCreateUser)
+      .subscribe(res => {
+        this.getOrganisations();
+        this.FormOrg = [];
+        alert('Completed.!!!');
+      }, err => {
+        if (err.status === 400) {
+          alert(`${err.status}`);
+          window.stop();
+        } else if (err.status === 403) {
+          alert(`${err.status}`);
+          window.stop();
+        } else if (err.status === 500) {
+          alert(`${err.status}`);
+          window.stop();
+        }
+      });
+    // }
 
 
   }
 
   /* Edit */
   editOrgSubmit(dataInput) {
-    let logoName = (<HTMLInputElement>document.getElementById("logo")).files[0];
-    dataInput['logoFile'] = (<HTMLInputElement>document.getElementById("logo")).files[0];
-    let bodyOrganisation = {
-      "logoName": (logoName) ? logoName.name : dataInput['logoName'],
-      "address": (dataInput['address']) ? dataInput['address'] : null,
-      "name": (dataInput['name']) ? dataInput['name'] : null,
-      "code": (dataInput['code']) ? dataInput['code'] : null,
-      "subdomain": (dataInput['subdomain']) ? dataInput['subdomain'] : null,
-    }
+    const logoName = (<HTMLInputElement>document.getElementById('logo')).files[0];
+    dataInput['logoFile'] = (<HTMLInputElement>document.getElementById('logo')).files[0];
+    const bodyOrganisation = {
+      'logoName': (logoName) ? logoName.name : dataInput['logoName'],
+      'address': (dataInput['address']) ? dataInput['address'] : null,
+      'name': (dataInput['name']) ? dataInput['name'] : null,
+      'code': (dataInput['code']) ? dataInput['code'] : null,
+      'subdomain': (dataInput['subdomain']) ? dataInput['subdomain'] : null,
+    };
     let idOrganisation = dataInput['idOrganisation'];
-    idOrganisation = idOrganisation.match(/\d+/g, '').map(Number)
+    idOrganisation = idOrganisation.match(/\d+/g, '').map(Number);
     this.apiService.editOrganisations(bodyOrganisation, idOrganisation)
       .subscribe(res => {
         /* Up Logo */
 
-        console.log('edit organisation completed')
-        let attributes = res['logoWriteForm']['attributes'];
-        let inputs = res['logoWriteForm']['inputs'];
-        let formLogoWrite = new FormData;
+        console.log('edit organisation completed');
+        const attributes = res['logoWriteForm']['attributes'];
+        const inputs = res['logoWriteForm']['inputs'];
+        const formLogoWrite = new FormData;
         formLogoWrite.append('Policy', inputs['Policy']);
         formLogoWrite.append('X-Amz-Algorithm', inputs['X-Amz-Algorithm']);
         formLogoWrite.append('X-Amz-Credential', inputs['X-Amz-Credential']);
@@ -339,34 +343,35 @@ export class OrgizationsComponent implements OnInit {
         formLogoWrite.append('X-Amz-Signature', inputs['X-Amz-Signature']);
         formLogoWrite.append('acl', inputs['acl']);
         formLogoWrite.append('key', res['logoWriteForm']['filePath']);
-        formLogoWrite.append('file', dataInput['logoFile'])
+        formLogoWrite.append('file', dataInput['logoFile']);
         if (dataInput['logoFile']) {
           this.apiService.uploadImage(attributes['action'], formLogoWrite)
             .subscribe(res => {
               this.getOrganisations();
               this.goForm = false;
               this.isEdit = false;
-            })
+            });
         }
         this.FormOrg = [];
         this.getOrganisations();
         this.goForm = false;
         this.isEdit = false;
-      })
+      });
   }
 
   /* Delete */
   deleteOrgSubmit(event) {
     if (window.confirm('Are you sure want to delete this?')) {
-      let id = event.data['@id']
+      let id = event.data['@id'];
       id = id.match(/\d+/g, '').map(Number);
       this.apiService.deleteOrganisations(id)
         .subscribe(res => {
           alert('Deleted.!!!');
           this.getOrganisations();
-        })
+        });
     }
   }
+
   /* /.Request */
   clear() {
     this.goForm = false;
@@ -375,6 +380,7 @@ export class OrgizationsComponent implements OnInit {
     this.FormOrg = [];
     this.addAdmin = false;
   }
+
   showFormAdmin() {
     this.addAdmin = !this.addAdmin;
   }
@@ -386,8 +392,8 @@ export class OrgizationsComponent implements OnInit {
       this.deleteOrgSubmit(event);
     } else if (event.action === 'ShowMore') {
       let idOrg = event.data['@id'];
-      idOrg = idOrg.match(/\d+/g, '').map(Number)
-      this.router.navigate([`/pages/organisations/${idOrg}/organisation-members`])
+      idOrg = idOrg.match(/\d+/g, '').map(Number);
+      this.router.navigate([`/pages/organisations/${idOrg}/organisation-members`]);
     }
   }
 
@@ -405,16 +411,16 @@ export class OrgizationsComponent implements OnInit {
         }
       }, err => {
         if (err.status === 400) {
-          alert(err.error['hydra:description'])
+          alert(err.error['hydra:description']);
           return false;
         } else if (err.status === 403) {
-          alert(err.error['hydra:description'])
+          alert(err.error['hydra:description']);
           return false;
         } else if (err.status === 500) {
-          alert(err.error['hydra:description'])
+          alert(err.error['hydra:description']);
           return false;
         }
-      })
+      });
     this.apiService.getUser(`?email=${dataInput['email']}`)
       .subscribe(emailCallback => {
         if (emailCallback['hydra:member'][0]) {
@@ -434,6 +440,6 @@ export class OrgizationsComponent implements OnInit {
           alert(err.error['hydra:description']);
           return false;
         }
-      })
+      });
   }
 }

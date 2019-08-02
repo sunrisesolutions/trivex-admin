@@ -15,8 +15,8 @@ import { DeliveriesAllComponent } from './deliveries-all/deliveries-all.componen
 import { InfiniteScrollerDirective } from '../directives/infinite-scroller.directive';
 import { SmartTableDatepickerRenderComponent } from './smart-table-datepicker-render/smart-table-datepicker-render.component';
 import { NbDatepickerModule } from '@nebular/theme';
-import { OrgizationsComponent } from './orgizations/orgizations.component';
-import { OrganisationMembersComponent} from './orgizations/organisation-members/organisation-members.component';
+import { OrganizationsComponent } from './organizations/organizations.component';
+import { OrganisationMembersComponent} from './organizations/organisation-members/organisation-members.component';
 import { InfoComponent } from './info/info.component';
 import { ListOptionsComponent } from './list-options/list-options.component';
 import { TimezonePickerModule } from 'ng2-timezone-selector';
@@ -43,7 +43,7 @@ const PAGES_COMPONENTS = [
     InfiniteScrollerDirective,
     DeliveriesAllComponent,
     ManageEventsComponent,
-    OrgizationsComponent,
+    OrganizationsComponent,
     OrganisationMembersComponent,
     InfoComponent,
     ListOptionsComponent,
