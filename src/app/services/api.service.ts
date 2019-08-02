@@ -304,14 +304,14 @@ export class ApiService {
     return this.httpClient.delete(`${userApi}/users/${id}`, httpOptions)
   }
   /* EVENTS API */
-  eventGet(page): Observable<Object> {
+  eventGet(route): Observable<Object> {
     const httpOptions = {
       headers: new HttpHeaders({
         'accept': 'application/ld+json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       }),
     };
-    return this.httpClient.get(`${eventAPI}/events${page}`, httpOptions);
+    return this.httpClient.get(`${eventAPI}/events${route}`, httpOptions);
   }
   eventPost(body): Observable<Object> {
     const httpOptions = {

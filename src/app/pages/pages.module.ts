@@ -21,6 +21,7 @@ import { InfoComponent } from './info/info.component';
 import { ListOptionsComponent } from './list-options/list-options.component';
 import { TimezonePickerModule } from 'ng2-timezone-selector';
 import { MessageOptionsComponent } from './message-options/message-options.component';
+import { RegistrationComponent } from './manage-events/registration/registration.component';
 
 const PAGES_COMPONENTS = [
   PagesComponent,
@@ -47,6 +48,7 @@ const PAGES_COMPONENTS = [
     OrganisationMembersComponent,
     InfoComponent,
     ListOptionsComponent,
+    RegistrationComponent,
     MessageOptionsComponent,
   ],
   entryComponents: [

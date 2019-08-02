@@ -25,7 +25,7 @@
   </nb-card-header>
 
   <nb-card-body>
-    <ng2-smart-table [settings]="settings" [source]="listEvents" (edit)="onEdit($event);isForm=true;isEdit=true"
+    <ng2-smart-table [settings]="settings" (custom)="customActions($event)" [source]="listEvents" (edit)="onEdit($event);isForm=true;isEdit=true"
       (create)="isForm=true;isAdd=true" (delete)="onDelete($event)">
     </ng2-smart-table>
   </nb-card-body>

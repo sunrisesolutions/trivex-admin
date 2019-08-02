@@ -2,6 +2,7 @@ import { ApiService } from './../../services/api.service';
 import { NbAccessChecker } from '@nebular/security';
 import { Component, OnInit } from '@angular/core';
 import { EventForm } from '../../models/event-interface';
+import { Router } from '@angular/router';
 @Component({
   selector: 'ngx-manage-events',
   templateUrl: './manage-events.component.html',
@@ -17,6 +18,14 @@ export class ManageEventsComponent implements OnInit {
   formEvent: Array<EventForm>[] = [];
   settings = {
     mode: 'external',
+    actions: {
+      custom: [
+        {
+          name: 'Event-Registration',
+          title: '<i class="custom-list nb-list"></i>'
+        }
+      ]
+    },
     add: {
       addButtonContent: '<i class="nb-plus"></i>',
       createButtonContent: '<i class="nb-checkmark"></i>',
@@ -57,7 +66,9 @@ export class ManageEventsComponent implements OnInit {
 
 
 
-  constructor(public apiService: ApiService, public accessChecker: NbAccessChecker) { }
+  constructor(
+    public router: Router,
+    public apiService: ApiService, public accessChecker: NbAccessChecker) { }
 
   ngOnInit() {
     this.getEvents();
@@ -156,5 +167,11 @@ export class ManageEventsComponent implements OnInit {
     this.isEdit = false;
     this.isForm = false;
     this.formEvent = [];
+  }
+  customActions(event){
+    console.log(event);
+    if(event.action === 'Event-Registration'){
+      this.router.navigate([`/pages/manage-events/${event.data['@id'].match(/\d+/g).map(Number)}/registration`])
+    }
   }
 }

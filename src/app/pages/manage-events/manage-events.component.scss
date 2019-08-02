@@ -1,3 +1,23 @@
-.cursor-pointer{
+.card {
+  border-radius: 10px;
+}
+.card-header {
+  background: #111218;
+}
+.cursor-pointer {
   cursor: pointer !important;
+}
+.bullet {
+  list-style-type: square !important;
+}
+
+:host /deep/ a.ng2-smart-action-custom-custom {
+  border-bottom: solid #cdd5dc 1.2px;
+}
+:host /deep/ .ng2-smart-actions {
+  height: auto !important;
+}
+
+:host /deep/ .custom-list:hover {
+  color: rgb(47, 116, 206) !important;
 }

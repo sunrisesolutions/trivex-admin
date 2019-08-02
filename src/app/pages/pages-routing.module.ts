@@ -12,6 +12,7 @@ import {HomeComponent} from './home/home.component';
 import {DeliveriesAllComponent} from './deliveries-all/deliveries-all.component';
 import {OrganizationsComponent} from './organizations/organizations.component';
 import {InfoComponent} from './info/info.component';
+import { RegistrationComponent } from './manage-events/registration/registration.component';
 
 const routes: Routes = [{
   path: '',
@@ -76,6 +77,10 @@ const routes: Routes = [{
     {
       path: 'manage-events',
       component: ManageEventsComponent,
+    },
+    {
+      path: 'manage-events/:id/registration',
+      component: RegistrationComponent
     },
     {
       path: 'manage-members',

@@ -1,0 +1,36 @@
+<div *ngIf="!(accessChecker.isGranted('view', 'manage-events') | async)"
+  class="accessChecker container flex-centers p-0">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <nb-card>
+        <nb-card-body class="d-flex justify-content-center">
+          <div class="flex-centered col-xl-4 col-lg-6 col-md-8 col-sm-12">
+            <h2 class="title">403 Access Denied</h2>
+            <h3 class="sub-title">You are not a organisation admin</h3>
+            <button routerLink="/pages/home" type="button" class="btn btn-block btn-hero-primary">
+              Take me home
+            </button>
+          </div>
+        </nb-card-body>
+      </nb-card>
+    </div>
+  </div>
+</div>
+
+
+
+<nb-card *ngIf="(accessChecker.isGranted('view', 'manage-events') | async) && !isForm">
+  <nb-card-header>
+    <h3 class="font-weight-light"> List-Events-Registration</h3>
+  </nb-card-header>
+
+  <nb-card-body>
+    <ng2-smart-table [settings]="settings" [source]="source">
+    </ng2-smart-table>
+  </nb-card-body>
+</nb-card>
+
+
+<!-- Form -->
+
+<!-- /.Form -->
