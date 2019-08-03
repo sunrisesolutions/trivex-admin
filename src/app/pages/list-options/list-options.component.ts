@@ -1,9 +1,9 @@
-import { Router } from '@angular/router';
-import { NbAccessChecker } from '@nebular/security';
-import { map } from 'rxjs/operators/map';
-import { NbAuthService, NbAuthJWTToken, decodeJwtPayload } from '@nebular/auth';
-import { ApiService } from '../../services/api.service';
-import { Component, OnInit } from '@angular/core';
+import {Router} from '@angular/router';
+import {NbAccessChecker} from '@nebular/security';
+import {map} from 'rxjs/operators/map';
+import {NbAuthService, NbAuthJWTToken, decodeJwtPayload} from '@nebular/auth';
+import {ApiService} from '../../services/api.service';
+import {Component, OnInit} from '@angular/core';
 
 @Component({
   selector: 'ngx-list-options',
@@ -12,7 +12,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ListOptionsComponent implements OnInit {
   optionSetsSource: Array<any>[] = [];
-  constructor(public apiService: ApiService, public authService: NbAuthService, public accessChecker: NbAccessChecker, public router: Router) {
+
+  constructor(public apiService: ApiService
+              , public authService: NbAuthService
+              , public accessChecker: NbAccessChecker
+              , public router: Router) {
 
   }
 
@@ -51,6 +55,7 @@ export class ListOptionsComponent implements OnInit {
       perPage: 20,
     },
   };
+
   ngOnInit() {
     this.getMessageOptions();
   }
@@ -127,9 +132,9 @@ export class ListOptionsComponent implements OnInit {
     }
   }
 
-  customActions(event){
+  customActions(event) {
     console.log(event);
-    if(event.action === 'List Options'){
+    if (event.action === 'List Options') {
       this.router.navigate([`/pages/list-options/${event.data['@id'].match(/\d+/g).map(Number)}/message-options`]);
     }
   }
