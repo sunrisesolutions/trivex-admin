@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
-import { MENU_ITEMS } from './pages-menu';
-import { NbAccessChecker } from '@nebular/security';
-import { NbAuthService } from '@nebular/auth';
-import { forEach } from '@angular/router/src/utils/collection';
+import {MENU_ITEMS} from './pages-menu';
+import {NbAccessChecker} from '@nebular/security';
+import {NbAuthService} from '@nebular/auth';
+import {forEach} from '@angular/router/src/utils/collection';
 
 @Component({
   selector: 'ngx-pages',
@@ -17,6 +17,7 @@ import { forEach } from '@angular/router/src/utils/collection';
 })
 export class PagesComponent {
   roles: Array<String>;
+
   constructor(private authService: NbAuthService, public accessChecker: NbAccessChecker) {
     this.roles = ['ROLE_USER'];
     this.authService.getToken()
@@ -59,37 +60,42 @@ export class PagesComponent {
     icon: 'nb-paper-plane',
     expanded: true,
     children: [
-      { title: 'Events', link: '/pages/manage-events' },
+      {title: 'Events', link: '/pages/manage-events'},
     ],
   },
-  {
-    title: 'Manage-Members',
-    icon: 'nb-person',
-    expanded: true,
-    children: [
-      {
-        title: 'Members',
-        link: '/pages/manage-members/members',
-      },
-    ],
+    {
+      title: 'Manage-Members',
+      icon: 'nb-person',
+      expanded: true,
+      children: [
+        {
+          title: 'Members',
+          link: '/pages/manage-members/members',
+        },
+      ],
 
-  },
-  {
-    title: 'Message Options',
-    icon: 'nb-email',
-    link: '/pages/list-options',
-  },
-  {
-    title: 'Configuration',
-    icon: 'nb-gear',
-    expanded: true,
-    children: [
-      {
-        title: 'Organisation Info',
-        link: '/pages/organisations',
-      },
-    ],
-  }];
+    },
+    {
+      title: 'Message Options',
+      icon: 'nb-email',
+      link: '/pages/list-options',
+    },
+    {
+      title: 'Messages',
+      icon: 'nb-email',
+      link: '/pages/messages',
+    },
+    {
+      title: 'Configuration',
+      icon: 'nb-gear',
+      expanded: true,
+      children: [
+        {
+          title: 'Organisation Info',
+          link: '/pages/organisations',
+        },
+      ],
+    }];
 
   adminMenu: Array<any> = [
     {
@@ -104,6 +110,7 @@ export class PagesComponent {
       link: '/pages/organisations',
     },
   ];
+
   getOut() {
     localStorage.clear();
     return window.location.href = 'https://trivesg.com/login';

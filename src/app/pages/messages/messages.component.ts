@@ -1,25 +1,21 @@
-import {NbAccessChecker} from '@nebular/security';
-import {NbAuthService, decodeJwtPayload} from '@nebular/auth';
-import {ApiService} from './../../services/api.service';
 import {Component, OnInit} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {ApiService} from '../../services/api.service';
+import {decodeJwtPayload, NbAuthService} from '@nebular/auth';
+import {NbAccessChecker} from '@nebular/security';
+import {Router} from '@angular/router';
 
 @Component({
-  selector: 'ngx-message-options',
-  templateUrl: './message-options.component.html',
-  styleUrls: ['./message-options.component.scss'],
+  selector: 'ngx-messages',
+  templateUrl: './messages.component.html',
+  styleUrls: ['./messages.component.scss'],
 })
-export class MessageOptionsComponent implements OnInit {
+export class MessagesComponent implements OnInit {
   optionSetsSource: Array<any>[] = [];
-  optionName = '';
 
-  constructor(
-    public apiService: ApiService,
-    public authService: NbAuthService,
-    public accessChecker: NbAccessChecker,
-    public router: Router,
-    public route: ActivatedRoute,
-  ) {
+  constructor(public apiService: ApiService
+    , public authService: NbAuthService
+    , public accessChecker: NbAccessChecker
+    , public router: Router) {
 
   }
 
@@ -29,6 +25,14 @@ export class MessageOptionsComponent implements OnInit {
       createButtonContent: '<i class="nb-checkmark"></i>',
       cancelButtonContent: '<i class="nb-close"></i>',
       confirmCreate: true,
+    },
+    actions: {
+      custom: [
+        {
+          name: 'List Options',
+          title: '<i class="custom-list nb-list"></i>',
+        },
+      ],
     },
 
     edit: {
@@ -57,25 +61,21 @@ export class MessageOptionsComponent implements OnInit {
 
 
   getMessageOptions() {
-    const idOption = +this.route.snapshot.params.id;
-    this.apiService.optionSetsGet(`/${idOption}/message_options`)
+    this.apiService.optionSetsGet('')
       .subscribe(res => {
         this.optionSetsSource = res['hydra:member'];
-        this.optionName = res['name'];
         console.log(res);
       });
   }
 
 
-  createMessageOption(event) {
-    console.log(event);
-    const idOption = +this.route.snapshot.params.id;
-    const messageOptionPost = {
+  createOption(event) {
+    const decoded = decodeJwtPayload(localStorage.getItem('token'));
+    const optionPost = {
       'name': event.newData.name,
-      'optionSet': `/option_sets/${idOption}`,
+      'organisationUuid': decoded.org,
     };
-
-    this.apiService.messageOptionsPost(messageOptionPost)
+    this.apiService.optionSetsPost(optionPost)
       .subscribe(res => {
         event.confirm.resolve();
       }, error => {
@@ -90,10 +90,9 @@ export class MessageOptionsComponent implements OnInit {
       });
   }
 
-  deleteMessageOption(event) {
-    console.log(event);
+  deleteOption(event) {
     if (window.confirm('Are you sure want to delete? ?')) {
-      this.apiService.messageOptionsDelete(event.data['@id'].match(/\d+/g).map(Number))
+      this.apiService.optionSetsDelete(event.data['@id'])
         .subscribe(res => {
           alert('Successfully.!!!');
           event.confirm.resolve();
@@ -109,17 +108,14 @@ export class MessageOptionsComponent implements OnInit {
     }
   }
 
-  editMessageOption(event) {
-    console.log(event);
-    const idOption = +this.route.snapshot.params.id;
-
+  editOption(event) {
     const decoded = decodeJwtPayload(localStorage.getItem('token'));
     if (window.confirm('Are you sure edit this ?')) {
-      const messageOptionPut = {
+      const optionSetsPut = {
         'name': event.newData.name,
-        'optionSet': `/option_sets/${idOption}`,
+        'organisation': decoded.org,
       };
-      this.apiService.messageOptionsPut(messageOptionPut, event.data['@id'].match(/\d+/g).map(Number))
+      this.apiService.optionSetsPut(optionSetsPut, event.data['@id'].match(/\d+/g).map(Number))
         .subscribe(res => {
           event.confirm.resolve();
         }, error => {
@@ -135,4 +131,10 @@ export class MessageOptionsComponent implements OnInit {
     }
   }
 
+  customActions(event) {
+    console.log(event);
+    if (event.action === 'List Options') {
+      this.router.navigate([`/pages/list-options/${event.data['@id'].match(/\d+/g).map(Number)}/message-options`]);
+    }
+  }
 }
