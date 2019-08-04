@@ -21,10 +21,13 @@
 <div *ngIf="(accessChecker.isGranted('view', 'manage-members') | async)" class="container">
   <nb-card class="card">
     <nb-card-header class="card-header">
-      <h2 class="text-light">List Options</h2>
+      <h2 class="text-light">Messages</h2>
     </nb-card-header>
     <nb-card-body class="card-body">
-      <ng2-smart-table (createConfirm)="createOption($event)" (custom)="customActions($event)" (editConfirm)="editOption($event)" (deleteConfirm)="deleteOption($event)" [source]="optionSetsSource"
+      <ng2-smart-table (createConfirm)="createMessage($event)"
+                       (editConfirm)="editMessage($event)"
+                       (deleteConfirm)="deleteMessage($event)"
+                       [source]="messagesSource"
                        [settings]="settings">
       </ng2-smart-table>
     </nb-card-body>

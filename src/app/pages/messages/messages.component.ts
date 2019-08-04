@@ -10,7 +10,7 @@ import {Router} from '@angular/router';
   styleUrls: ['./messages.component.scss'],
 })
 export class MessagesComponent implements OnInit {
-  optionSetsSource: Array<any>[] = [];
+  messagesSource: Array<any>[] = [];
 
   constructor(public apiService: ApiService
     , public authService: NbAuthService
@@ -29,7 +29,7 @@ export class MessagesComponent implements OnInit {
     actions: {
       custom: [
         {
-          name: 'List Options',
+          name: 'List Messages',
           title: '<i class="custom-list nb-list"></i>',
         },
       ],
@@ -46,8 +46,21 @@ export class MessagesComponent implements OnInit {
       confirmDelete: true,
     },
     columns: {
-      name: {
-        title: 'Name',
+      title: {
+        title: 'Title',
+        type: 'string',
+      },
+      startedAt: {
+        title: 'Started At',
+        type: 'string',
+      },
+      endedAt: {
+        title: 'Ended At',
+        type: 'string',
+      },
+      timezone: {
+        title: 'Timezone',
+        type: 'string',
       },
     },
     pager: {
@@ -56,26 +69,26 @@ export class MessagesComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.getMessageOptions();
+    this.getMessages();
   }
 
 
-  getMessageOptions() {
-    this.apiService.optionSetsGet('')
+  getMessages() {
+    this.apiService.messagesGet('')
       .subscribe(res => {
-        this.optionSetsSource = res['hydra:member'];
+        this.messagesSource = res['hydra:member'];
         console.log(res);
       });
   }
 
 
-  createOption(event) {
+  createMessage(event) {
     const decoded = decodeJwtPayload(localStorage.getItem('token'));
     const optionPost = {
       'name': event.newData.name,
       'organisationUuid': decoded.org,
     };
-    this.apiService.optionSetsPost(optionPost)
+    this.apiService.messagesPost(optionPost)
       .subscribe(res => {
         event.confirm.resolve();
       }, error => {
@@ -90,9 +103,9 @@ export class MessagesComponent implements OnInit {
       });
   }
 
-  deleteOption(event) {
+  deleteMessage(event) {
     if (window.confirm('Are you sure want to delete? ?')) {
-      this.apiService.optionSetsDelete(event.data['@id'])
+      this.apiService.messagesDelete(event.data['@id'])
         .subscribe(res => {
           alert('Successfully.!!!');
           event.confirm.resolve();
@@ -108,14 +121,14 @@ export class MessagesComponent implements OnInit {
     }
   }
 
-  editOption(event) {
+  editMessage(event) {
     const decoded = decodeJwtPayload(localStorage.getItem('token'));
     if (window.confirm('Are you sure edit this ?')) {
       const optionSetsPut = {
         'name': event.newData.name,
         'organisation': decoded.org,
       };
-      this.apiService.optionSetsPut(optionSetsPut, event.data['@id'].match(/\d+/g).map(Number))
+      this.apiService.messagesPut(optionSetsPut, event.data['@id'].match(/\d+/g).map(Number))
         .subscribe(res => {
           event.confirm.resolve();
         }, error => {
@@ -128,13 +141,6 @@ export class MessagesComponent implements OnInit {
           }
           event.confirm.reject();
         });
-    }
-  }
-
-  customActions(event) {
-    console.log(event);
-    if (event.action === 'List Options') {
-      this.router.navigate([`/pages/list-options/${event.data['@id'].match(/\d+/g).map(Number)}/message-options`]);
     }
   }
 }
