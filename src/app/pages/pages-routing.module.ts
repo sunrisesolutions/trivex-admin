@@ -13,6 +13,7 @@ import {DeliveriesAllComponent} from './deliveries-all/deliveries-all.component'
 import {OrganizationsComponent} from './organizations/organizations.component';
 import {InfoComponent} from './info/info.component';
 import { RegistrationComponent } from './manage-events/registration/registration.component';
+import {MessagesComponent} from './messages/messages.component';
 
 const routes: Routes = [{
   path: '',
@@ -80,7 +81,7 @@ const routes: Routes = [{
     },
     {
       path: 'manage-events/:id/registrations',
-      component: RegistrationComponent
+      component: RegistrationComponent,
     },
     {
       path: 'manage-members',
@@ -88,6 +89,9 @@ const routes: Routes = [{
     }, {
       path: 'miscellaneous',
       loadChildren: './miscellaneous/miscellaneous.module#MiscellaneousModule',
+    }, {
+      path: 'messages',
+      component: MessagesComponent,
     }, {
       path: '',
       redirectTo: 'home',
