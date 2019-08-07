@@ -46,10 +46,7 @@ export class AppComponent implements OnInit {
       const getToken = localStorage.getItem('token');
       // decode token lấy timestamp
       let decoded;
-      this.authService.getToken()
-        .subscribe(res => {
-          decoded = res['payload'];
-        })
+      decoded = decodeJwtPayload(getToken)
       const currentDate = Date.now();
       const tokenDate = decoded.exp * 1000;
       if (tokenDate < currentDate) {

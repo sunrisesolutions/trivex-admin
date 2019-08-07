@@ -17,6 +17,48 @@ import { forEach } from '@angular/router/src/utils/collection';
 })
 export class PagesComponent {
   roles: Array<String>;
+  menu: Array<any> = [
+    {
+      title: 'Home',
+      icon: 'nb-home',
+      link: '/pages/home',
+      home: true,
+    }, {
+      title: 'Manage-Events',
+      icon: 'nb-paper-plane',
+      expanded: true,
+      children: [
+        { title: 'Events', link: '/pages/manage-events' },
+      ],
+    },
+    {
+      title: 'Manage-Members',
+      icon: 'nb-person',
+      expanded: true,
+      children: [
+        {
+          title: 'Members',
+          link: '/pages/manage-members/members',
+        },
+      ],
+
+    },
+    {
+      title: 'Message Options',
+      icon: 'nb-email',
+      link: '/pages/list-options',
+    },
+    {
+      title: 'Configuration',
+      icon: 'nb-gear',
+      expanded: true,
+      children: [
+        {
+          title: 'Organisation Info',
+          link: '/pages/organisations',
+        },
+      ],
+    }];;
   constructor(private authService: NbAuthService, public accessChecker: NbAccessChecker) {
     this.roles = ['ROLE_USER'];
     this.authService.getToken()
@@ -32,72 +74,21 @@ export class PagesComponent {
   getMenu(roles) {
     if (roles) {
       if (roles.indexOf('ROLE_ADMIN') > -1) {
-        if (roles.indexOf('ROLE_ORG_ADMIN') > -1) {
-          return this.adminMenu.concat(this.orgAdminMenu);
-        } else {
-          return this.adminMenu;
-        }
+        return this.menu = this.adminMenu;
       }
       if (roles.indexOf('ROLE_ORG_ADMIN') > -1) {
-        if (roles.indexOf('ROLE_ADMIN') > -1) {
-          return this.orgAdminMenu.concat(this.adminMenu);
-        } else {
-          return this.orgAdminMenu;
-        }
+        return this.menu;
       }
     }
 
   }
-
-  orgAdminMenu: Array<any> = [{
-    title: 'Home',
-    icon: 'nb-home',
-    link: '/pages/home',
-    home: true,
-  }, {
-    title: 'Manage-Events',
-    icon: 'nb-paper-plane',
-    expanded: true,
-    children: [
-      { title: 'Events', link: '/pages/manage-events' },
-    ],
-  },
-  {
-    title: 'Manage-Members',
-    icon: 'nb-person',
-    expanded: true,
-    children: [
-      {
-        title: 'Members',
-        link: '/pages/manage-members/members',
-      },
-    ],
-
-  },
-  {
-    title: 'Message Options',
-    icon: 'nb-email',
-    link: '/pages/list-options',
-  },
-  {
-    title: 'Configuration',
-    icon: 'nb-gear',
-    expanded: true,
-    children: [
-      {
-        title: 'Organisation Info',
-        link: '/pages/organisations',
-      },
-    ],
-  }];
-
   adminMenu: Array<any> = [
-    {
-      title: 'Home',
-      icon: 'nb-home',
-      link: '/pages/home',
-      home: true,
-    },
+     {
+       title: 'Home',
+       icon: 'nb-home',
+       link: '/pages/home',
+       home: true,
+     },
     {
       title: 'Organisations',
       icon: 'nb-flame-circled',

@@ -23,7 +23,11 @@ export class ManageEventsComponent implements OnInit {
         {
           name: 'Event-Registration',
           title: '<i class="custom-list nb-list"></i>'
-        }
+        },
+        {
+          name: 'To-Event',
+          title: '<i class="custom-list nb-paper-plane"></i>'
+        },
       ]
     },
     add: {
@@ -52,6 +56,9 @@ export class ManageEventsComponent implements OnInit {
       startedAt: {
         title: 'Started At',
         type: 'string',
+        valuePreparefunction: (cell, row) =>{
+          return cell = new Date(cell).toDateString();
+        }
       },
       endedAt: {
         title: 'Ended At',
@@ -76,7 +83,7 @@ export class ManageEventsComponent implements OnInit {
 
   /* Request */
   getEvents() {
-    this.apiService.eventGet(``)
+    this.apiService.eventGet('/events')
       .subscribe(res => {
         this.listEvents = res['hydra:member'];
         // tslint:disable-next-line: no-console
@@ -172,6 +179,9 @@ export class ManageEventsComponent implements OnInit {
     console.log(event);
     if(event.action === 'Event-Registration'){
       this.router.navigate([`/pages/manage-events/${event.data['@id'].match(/\d+/g).map(Number)}/registrations`])
+    }
+    if(event.action === 'To-Event'){
+      window.location.href = `https://trivesg.com/event/${event.data['@id'].match(/\d+/g).map(Number)}`
     }
   }
 }

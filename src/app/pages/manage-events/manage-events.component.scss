@@ -14,6 +14,9 @@
 :host /deep/ a.ng2-smart-action-custom-custom {
   border-bottom: solid #cdd5dc 1.2px;
 }
+:host /deep/ ng2-st-tbody-custom{
+  display: flex !important;
+}
 :host /deep/ .ng2-smart-actions {
   height: auto !important;
 }

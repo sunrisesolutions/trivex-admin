@@ -70,7 +70,7 @@ export class HeaderComponent implements OnInit {
             this.user['profilePicture'] = this.user['profilePicture'];
           }, error => {
             if (error.status === 404) {
-              this.user['profilePicture'] = 'https://i.gifer.com/B0eS.gif';
+              this.user['profilePicture'] = '/assets/img-process/Not-found-img.gif';
             }
           })
         this.menuService.onItemClick()

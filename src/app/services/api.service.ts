@@ -311,7 +311,7 @@ export class ApiService {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       }),
     };
-    return this.httpClient.get(`${eventAPI}/events${route}`, httpOptions);
+    return this.httpClient.get(`${eventAPI}${route}`, httpOptions);
   }
   eventPost(body): Observable<Object> {
     const httpOptions = {
@@ -329,7 +329,7 @@ export class ApiService {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       }),
     };
-    return this.httpClient.put(`${eventAPI}${id}`, body, httpOptions);
+    return this.httpClient.put(`${eventAPI}/${id}`, body, httpOptions);
   }
   eventDelete(id): Observable<Object> {
     const httpOptions = {

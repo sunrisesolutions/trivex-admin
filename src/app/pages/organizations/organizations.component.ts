@@ -106,7 +106,7 @@ export class OrganizationsComponent implements OnInit {
 
         } else {
           for (const org of this.orgs) {
-            org['logoReadUrl'] = (org['logoReadUrl'] !== null) ? org['logoReadUrl'] : 'http://ventureasheville.com/wp-content/uploads/2015/09/logo-placeholder.jpg';
+            org['logoReadUrl'] = (org['logoReadUrl'] !== null) ? org['logoReadUrl'] : '/assets/img-process/not-found-logo-org.jpg';
           }
         }
         console.log('orgs res is', res);
